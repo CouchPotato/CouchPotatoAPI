@@ -27,8 +27,6 @@ exports.isMovie = function(imdb, callback){
 			var is_movie = false;
 			async.parallel(providers.ismovie(imdb), function(err, results) {
 
-				console.log(err, results);
-
 				var total = 0;
 				results.forEach(function(result){
 					total += +(result)
@@ -73,7 +71,7 @@ exports.getMovieInfo = function(id, callback){
 				});
 
 				// Cache
-				rclient.setex(hash, 3600, JSON.stringify(new_results));
+				rclient.setex(hash, 3600, JSON.stringify(movie_info));
 
 				// Send back
 				callback(movie_info);
