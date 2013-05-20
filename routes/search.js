@@ -4,13 +4,12 @@ var redis = require('redis'),
 exports.query = function(req, res) {
 
 	var query = req.params.query;
-
-	res.type('application/json');
 	global.api.searchMovie({
 		'query': query,
 		'limit': 3
 	}, function(results){
 
+		res.type('application/json');
 		res.json(results);
 
 	});

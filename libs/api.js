@@ -86,7 +86,7 @@ exports.getMovieInfo = function(id, callback){
 
 exports.searchMovie = function(options, callback){
 
-	var hash = 'search.' + options.q + '.' + (options.limit || '');
+	var hash = 'search.' + options.query + '.' + (options.limit || '');
 
 	// Get from Redis
 	rclient.get(hash, function(err, result){
