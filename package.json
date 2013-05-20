@@ -11,6 +11,8 @@
 		"request": ">= 2",
 		"moviedb": ">= 0.1",
 		"async": ">= 0.2",
-		"settings": ">= 0.1"
+		"settings": ">= 0.1",
+		"redis": ">= 0.8",
+		"hiredis": ">= 0.1"
 	}
 }
