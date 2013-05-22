@@ -43,10 +43,18 @@ exports.info = function(id, callback){
 
 exports.search = function(options, callback){
 
+	options = global.merge(options, {
+		'search_type': 'ngram'
+	})
+
 	moviedb.searchMovie(options, function(err, rs){
 
 		var nr = 0,
 			results = [];
+
+		// Return empty results
+		if(rs.results.length == 0)
+			callback(null, results);
 
 		var parse_next_result = function(info){
 			nr++;
@@ -67,10 +75,7 @@ exports.search = function(options, callback){
 
 		}
 
-		if(rs.results.length == 0)
-			callback(null, results);
-		else
-			api.getMovieInfo(rs.results[nr].id, parse_next_result);
+		api.getMovieInfo(rs.results[nr].id, parse_next_result);
 
 	});
 

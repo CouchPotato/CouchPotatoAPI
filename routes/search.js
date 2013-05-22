@@ -3,23 +3,30 @@ var redis = require('redis'),
 
 exports.query = function(req, res) {
 
-	var query = req.params.query;
+	var query = global.trim(req.params.query).replace('+', ' ');
 
+	// Get year
 	if(query.length > 6){
-		var spl = query.substr(),
-			year = spl[spl.length-1];
-		if(year.length == 4 && year > 1900){
-			console.log('test');
-			console.log(query);
+		var correct = function(y){
+			return y.length == 4 && y > 1900;
+		}, year;
+
+		// Try "name year"
+		year = query.substr(-4);
+		if(correct(year)){
+			query = query.substr(0, (query.length-4));
 		}
 		else {
-			year = null;
+			// Try "name (year)"
+			year = query.substr(-5, 4);
+			if(query.substr(-1) == ')' && query.substr(-6, 1) == '(' && correct(year))
+				query = query.substr(0, (query.length-6));
+			else
+				year = null;
 		}
 	}
 
-	res.type('application/json');
-	res.json([]);
-	return;
+	query = global.trim(query);
 
 	global.api.searchMovie({
 		'query': query,

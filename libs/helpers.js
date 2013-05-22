@@ -17,6 +17,11 @@ global.merge = function(obj1, obj2) {
 	return obj1;
 }
 
+// Trim whitespace
+global.trim = function(s){
+	return String(s).replace(/\s+/g, ' ').replace(/^\s+|\s+$/g, '')
+}
+
 // Convert string representation of date and time to a timestamp
 global.strtotime = function(text, now) {
 	if (!text)
