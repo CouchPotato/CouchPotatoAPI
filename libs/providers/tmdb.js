@@ -67,7 +67,10 @@ exports.search = function(options, callback){
 
 		}
 
-		api.getMovieInfo(rs.results[nr].id, parse_next_result);
+		if(rs.results.length == 0)
+			callback(null, results);
+		else
+			api.getMovieInfo(rs.results[nr].id, parse_next_result);
 
 	});
 
