@@ -17,10 +17,16 @@ var express = require('express'),
 	path = require('path');
 
 var app = express();
+	app.disable('x-powered-by');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.use(express.compress());
+
+app.use(function(req, res, next){
+	res.setHeader('X-Powered-By', 'CouchPotato ('+app.get('port')+')');
+	next();
+});
 
 // development only
 if(app.get('env') == 'development') {
