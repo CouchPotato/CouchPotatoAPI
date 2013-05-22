@@ -13,6 +13,7 @@ var express = require('express'),
 	ismovie = require('./routes/ismovie'),
 	info = require('./routes/info'),
 	search = require('./routes/search'),
+	updates = require('./routes/updates'),
 	http = require('http'),
 	path = require('path');
 
@@ -50,6 +51,7 @@ app.get('/eta/tt:imdb(\\d+)', eta.imdb);
 app.get('/ismovie/tt:imdb(\\d+)', ismovie.imdb);
 app.get('/info/tt:imdb(\\d+)', info.imdb);
 app.get('/search/:query', search.query);
+app.get('/updates/', updates.url);
 
 httpServer = http.createServer(app).listen(app.get('port'), function() {
 	console.log('Express server listening on port ' + app.get('port'));
