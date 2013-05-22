@@ -30,7 +30,7 @@ exports.query = function(req, res) {
 
 	var options = global.merge({
 		'query': query,
-		'limit': 3
+		'limit': 5
 	}, year ? {'year': year} : {});
 
 	global.api.searchMovie(options, function(results){
