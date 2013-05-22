@@ -28,11 +28,12 @@ exports.query = function(req, res) {
 
 	query = global.trim(query);
 
-	global.api.searchMovie({
+	var options = global.merge({
 		'query': query,
-		'year': year,
 		'limit': 3
-	}, function(results){
+	}, year ? {'year': year} : {});
+
+	global.api.searchMovie(options, function(results){
 
 		res.type('application/json');
 		res.json(results);

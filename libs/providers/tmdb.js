@@ -53,8 +53,10 @@ exports.search = function(options, callback){
 			results = [];
 
 		// Return empty results
-		if(rs.results.length == 0)
+		if(rs.results.length == 0){
 			callback(null, results);
+			return;
+		}
 
 		var parse_next_result = function(info){
 			nr++;
