@@ -31,7 +31,7 @@ exports.info = function(id, callback){
 			'plot': r.overview,
 			'tagline': r.tagline,
 			'imdb': r.imdb_id,
-			'genre': genres
+			'genres': genres
 		}
 
 		// Return
