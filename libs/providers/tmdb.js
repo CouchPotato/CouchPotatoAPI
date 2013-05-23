@@ -58,26 +58,32 @@ exports.search = function(options, callback){
 			return;
 		}
 
-		var parse_next_result = function(info){
+		var parse_next_result = function(info, force_add){
 			nr++;
 
-			if(info.imdb)
+			if(force_add || info.imdb)
 				results.push(info);
 
 			// Return and search only first 3 with imdb_id
-			if(results.length >= (options.limit || 3) || rs.results.length <= nr)
+			if(results.length >= options.limit || rs.results.length <= nr)
 				callback(null, results);
 			else {
 
 				// Next result
 				var r = rs.results[nr];
-				api.getMovieInfo(r.id, parse_next_result);
+				if(!options.autocomplete)
+					api.getMovieInfo(r.id, parse_next_result);
+				else
+					parse_next_result(r, true);
 
 			}
 
 		}
 
-		api.getMovieInfo(rs.results[nr].id, parse_next_result);
+		if(!options.autocomplete)
+			api.getMovieInfo(rs.results[nr].id, parse_next_result);
+		else
+			parse_next_result(rs.results[nr], true);
 
 	});
 

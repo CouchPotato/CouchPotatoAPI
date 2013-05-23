@@ -30,7 +30,8 @@ exports.query = function(req, res) {
 
 	var options = global.merge({
 		'query': query,
-		'limit': 5
+		'limit': 5,
+		'autocomplete': ['true', '1'].indexOf((req.query.autocomplete || '').toLowerCase()) != -1
 	}, year ? {'year': year} : {});
 
 	global.api.searchMovie(options, function(results){

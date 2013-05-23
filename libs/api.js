@@ -86,7 +86,10 @@ exports.getMovieInfo = function(id, callback){
 
 exports.searchMovie = function(options, callback){
 
-	var hash = 'search.' + options.query + '.' + (options.limit || '');
+	options.limit = options.limit || 3;
+	options.autocomplete = options.autocomplete || false
+
+	var hash = 'search.' + options.query + '.' + options.limit + '.' + (options.autocomplete ? 'ac' : 'f');
 
 	// Get from Redis
 	rclient.get(hash, function(err, result){
@@ -123,7 +126,7 @@ exports.searchMovie = function(options, callback){
 						}
 						else {
 							new_results.push(result);
-							ids.push('')
+							ids.push(result.tmdb_id || result.id || '');
 						}
 
 					});
