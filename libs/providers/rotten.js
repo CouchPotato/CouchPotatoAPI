@@ -6,7 +6,7 @@ var url = 'http://api.rottentomatoes.com/api/public/v1.0/';
 exports.eta = function(imdb, callback){
 
 	// Only except imdb ids
-	if((imdb + '').substring(2) != 'tt'){
+	if((imdb + '').substring(0, 2) != 'tt'){
 		callback();
 		return;
 	}
