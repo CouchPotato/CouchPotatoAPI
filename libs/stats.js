@@ -38,10 +38,11 @@ exports.stats = function(req, res, next) {
 		'hits-by-user-by-day:' + user + ':' + day
 	];
 
+	// Add stats for movie if id is found
     var imdb_id = req.url.match(/tt(\d{7})/);
 	if(imdb_id){
 		keys.push('hits-by-movie:' + imdb_id[0]);
-		keys.push('hits-by-movie-by-type:' + imdb_id[0] + ':' + req.url.split('/')[0]);
+		keys.push('hits-by-movie-by-type:' + imdb_id[0] + ':' + req.url.split('/')[1]);
 	}
 
 	// Increment all keys
@@ -52,6 +53,5 @@ exports.stats = function(req, res, next) {
 	// Set last request time for each user
 	now = Math.round(date.getTime() / 1000)
 	rclient.zadd('user-last-request', now, user);
-
 
 }
