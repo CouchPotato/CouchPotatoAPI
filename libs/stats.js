@@ -44,9 +44,14 @@ exports.stats = function(req, res, next) {
 		keys.push('hits-by-movie-by-type:' + imdb_id[0] + ':' + req.url.split('/')[0]);
 	}
 
+	// Increment all keys
 	for(i in keys) {
 		rclient.incr(keys[i]);
 	}
+
+	// Set last request time for each user
+	now = Math.round(date.getTime() / 1000)
+	rclient.zadd('user-last-request', now, user);
 
 
 }
