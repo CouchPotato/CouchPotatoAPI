@@ -1,6 +1,6 @@
-var redis = require('redis'),
-    rclient = redis.createClient();
-
+/**
+ * Return list of movies based on query
+ */
 exports.query = function(req, res) {
 
 	var query = global.trim(req.params.query).replace('+', ' ');

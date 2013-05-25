@@ -1,7 +1,6 @@
-var request = require('request'),
-	redis = require('redis'),
-    rclient = redis.createClient();
-
+/**
+ * Check if IMDB id is a movie
+ */
 exports.imdb = function(req, res) {
 
 	var imdb = 'tt'+req.params.imdb;

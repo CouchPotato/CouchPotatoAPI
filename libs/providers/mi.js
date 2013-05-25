@@ -9,7 +9,7 @@ exports.eta = function(imdb, callback){
 		return;
 	}
 
-	var mi_hash = 'mi.'+imdb;
+	var mi_hash = 'mi:'+imdb;
 
 	var get_details = function(detail_url){
 

@@ -1,3 +1,6 @@
+/**
+ * Get movie info by IMDB id
+ */
 exports.imdb = function(req, res) {
 
 	var imdb = 'tt'+req.params.imdb;
