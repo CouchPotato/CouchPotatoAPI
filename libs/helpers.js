@@ -1,3 +1,8 @@
+// check if ip is whitelisted
+global.isWhitelisted = function(ip){
+	return (global.settings.whitelisted_ips || []).indexOf(ip) != -1;
+}
+
 // Merge objects
 global.merge = function(obj1, obj2) {
 
