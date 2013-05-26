@@ -9,6 +9,11 @@ exports.info = function(id, callback){
 	// Go do a search
 	moviedb.movieInfo({'id': id}, function(err, r){
 
+		if(err){
+			callback(null, {});
+			return;
+		}
+
 		// Get genres
 		var genres = [];
 		r.genres.forEach(function(genre){
