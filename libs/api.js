@@ -37,7 +37,7 @@ exports.isMovie = function(imdb, callback){
 				is_movie = (total > 0)
 
 				// Cache
-				rclient.setex(hash, 3600, JSON.stringify(is_movie));
+				rclient.set(hash, JSON.stringify(is_movie));
 
 				// Send back
 				callback(is_movie);
