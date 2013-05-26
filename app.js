@@ -16,6 +16,7 @@ var express = require('express'),
 	info = require('./routes/info'),
 	search = require('./routes/search'),
 	updates = require('./routes/updates'),
+	messages = require('./routes/messages'),
 
 	// Stats & restriction
 	stats = require('./libs/stats').stats,
@@ -64,6 +65,7 @@ app.get('/eta/tt:imdb(\\d+)', stats, restrict, eta.imdb);
 app.get('/ismovie/tt:imdb(\\d+)', stats, restrict, ismovie.imdb);
 app.get('/info/tt:imdb(\\d+)', stats, restrict,  info.imdb);
 app.get('/search/:query', stats, restrict, search.query);
+app.get('/messages/', stats, restrict, messages.list);
 app.get('/updates/', stats, updates.url);
 
 httpServer = http.createServer(app).listen(app.get('port'), function() {
