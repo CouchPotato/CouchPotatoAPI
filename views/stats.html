@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+	<head>
+		<title>API Stats</title>
+		<script src="chart.js"></script>
+		<meta name="viewport" content="initial-scale=1, user-scalable=no">
+	</head>
+	<body>
+		<canvas id="users" height="250" width="1000"></canvas>
+
+		<script>
+			new Chart(document.getElementById("users").getContext("2d")).Bar({{day_data}}, {{options}});
+		</script>
+
+		<canvas id="requests" height="250" width="1000"></canvas>
+
+		<script>
+			new Chart(document.getElementById("requests").getContext("2d")).Bar({{request_data}}, {{options}});
+		</script>
+	</body>
+</html>

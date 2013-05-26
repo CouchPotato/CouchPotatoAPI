@@ -1,6 +1,6 @@
-var crypto = require('crypto')
+var crypto = require('crypto'),
 	redis = require('redis'),
-    rclient = redis.createClient();;
+    rclient = redis.createClient();
 
 var md5 = function(string){
 	return crypto.createHash('md5').update(string).digest('hex')

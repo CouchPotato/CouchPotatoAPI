@@ -27,6 +27,9 @@ var express = require('express'),
 var app = express();
 	app.disable('x-powered-by');
 
+// Set static folder
+app.use(express.static(__dirname + '/public'));
+
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.use(express.compress());

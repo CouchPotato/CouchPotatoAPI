@@ -1,6 +1,8 @@
 var async = require('async'),
 	request = require('request'),
-	providers = require('./providers');
+	providers = require('./providers'),
+	redis = require('redis'),
+    rclient = redis.createClient();
 
 // Some logging around request
 exports.request = function(options, callback){
