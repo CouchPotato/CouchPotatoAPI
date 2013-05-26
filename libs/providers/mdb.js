@@ -1,7 +1,6 @@
 var cheerio = require('cheerio'),
 	settings = global.settings.mdb;
 
-
 exports.eta = function(imdb, callback){
 
 	// Only except imdb ids
