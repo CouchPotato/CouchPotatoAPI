@@ -9,6 +9,8 @@ var fs = require('fs'),
 exports.index = function(req, res) {
 
 	if(global.isWhitelisted(req.ip)){
+		winston.info('Showing some stats.');
+
 		var ulr = 'user-last-request',
 			now = Math.round(new Date().getTime() / 1000);
 
