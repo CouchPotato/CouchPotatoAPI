@@ -1,5 +1,6 @@
 var cheerio = require('cheerio'),
-	settings = global.settings.mdb;
+	settings = global.settings.mdb,
+	winston = require('winston');
 
 exports.eta = function(imdb, callback){
 
@@ -12,7 +13,15 @@ exports.eta = function(imdb, callback){
 	global.api.request({
 		'timeout': settings.timout || 3000,
 		'url': settings.eta_url + imdb + '/releaseinfo'
-	}, function(error, response, body) {
+	}, function(err, response, body) {
+
+		// Log errors
+		if(err){
+			winston.error(err);
+			callback(null, {});
+			return;
+		}
+
 		var $ = cheerio.load(body);
 
 		// Find the title

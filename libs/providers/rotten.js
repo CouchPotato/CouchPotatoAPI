@@ -1,5 +1,6 @@
 var cheerio = require('cheerio'),
-	settings = global.settings.rotten;
+	settings = global.settings.rotten,
+	winston = require('winston');
 
 var url = 'http://api.rottentomatoes.com/api/public/v1.0/';
 
@@ -16,7 +17,14 @@ exports.eta = function(imdb, callback){
 	global.api.request({
 		'timeout': settings.timout || 3000,
 		'url': url + 'movie_alias.json?type=imdb&id=' + imdb.replace('tt', '') + '&apikey=' + settings.apikey
-	}, function(error, response, body){
+	}, function(err, response, body){
+
+		// Log errors
+		if(err){
+			winston.error(err);
+			callback(null, {});
+			return;
+		}
 
 		var rotten = JSON.parse(body)
 			dates = rotten.release_dates;

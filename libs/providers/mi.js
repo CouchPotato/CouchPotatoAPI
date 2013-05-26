@@ -1,7 +1,8 @@
 var cheerio = require('cheerio'),
 	settings = global.settings.mi,
 	redis = require('redis'),
-    rclient = redis.createClient();
+    rclient = redis.createClient(),
+    winston = require('winston');
 
 exports.eta = function(imdb, callback){
 
@@ -18,7 +19,15 @@ exports.eta = function(imdb, callback){
 		global.api.request({
 			'timeout': settings.timeout || 3000,
 			'url': detail_url
-		}, function(error, response, body){
+		}, function(err, response, body){
+
+			// Log errors
+			if(err){
+				winston.error(err);
+				callback(null, {});
+				return;
+			}
+
 			var $ = cheerio.load(body),
 				dates = {};
 

@@ -1,5 +1,6 @@
 var settings = global.settings.moviedb,
-	moviedb = require('moviedb')(settings.apikey);
+	moviedb = require('moviedb')(settings.apikey),
+	winston = require('winston');
 
 // TMDB image base url
 var img_url = 'http://cf2.imgobject.com/t/p/';
@@ -9,7 +10,9 @@ exports.info = function(id, callback){
 	// Go do a search
 	moviedb.movieInfo({'id': id}, function(err, r){
 
+		// Log errors
 		if(err){
+			winston.error(err);
 			callback(null, {});
 			return;
 		}
@@ -53,6 +56,13 @@ exports.search = function(options, callback){
 	})
 
 	moviedb.searchMovie(options, function(err, rs){
+
+		// Log errors
+		if(err){
+			winston.error(err);
+			callback(null, []);
+			return;
+		}
 
 		var nr = 0,
 			results = [];

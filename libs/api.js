@@ -2,7 +2,8 @@ var async = require('async'),
 	request = require('request'),
 	providers = require('./providers'),
 	redis = require('redis'),
-    rclient = redis.createClient();
+    rclient = redis.createClient(),
+    winston = require('winston');
 
 // Some logging around request
 exports.request = function(options, callback){
@@ -19,6 +20,13 @@ exports.isMovie = function(imdb, callback){
 	// Get from Redis
 	rclient.get(hash, function(err, result){
 
+		// Log errors
+		if(err){
+			winston.error(err);
+			callback({});
+			return;
+		}
+
 		// Return if exists
 		if(result){
 			callback(JSON.parse(result));
@@ -28,6 +36,13 @@ exports.isMovie = function(imdb, callback){
 
 			var is_movie = false;
 			async.parallel(providers.ismovie(imdb), function(err, results) {
+
+				// Log errors
+				if(err){
+					winston.error(err);
+					callback({});
+					return;
+				}
 
 				var total = 0;
 				results.forEach(function(result){
@@ -58,6 +73,13 @@ exports.getMovieInfo = function(id, callback){
 	// Get from Redis
 	rclient.get(hash, function(err, result){
 
+		// Log errors
+		if(err){
+			winston.error(err);
+			callback({});
+			return;
+		}
+
 		// Return if exists
 		if(result){
 			callback(JSON.parse(result));
@@ -66,6 +88,13 @@ exports.getMovieInfo = function(id, callback){
 		else {
 
 			async.parallel(providers.info(id), function(err, results) {
+
+				// Log errors
+				if(err){
+					winston.error(err);
+					callback({});
+					return;
+				}
 
 				var movie_info = {};
 				results.forEach(function(result){
@@ -96,6 +125,13 @@ exports.searchMovie = function(options, callback){
 	// Get from Redis
 	rclient.get(hash, function(err, result){
 
+		// Log errors
+		if(err){
+			winston.error(err);
+			callback({});
+			return;
+		}
+
 		// Return if exists
 		if(result){
 			callback(JSON.parse(result));
@@ -104,6 +140,13 @@ exports.searchMovie = function(options, callback){
 		else {
 
 			async.parallel(providers.search(options), function(err, all_results) {
+
+				// Log errors
+				if(err){
+					winston.error(err);
+					callback([]);
+					return;
+				}
 
 				// Merge results on imdb if possible
 				var new_results = [],
@@ -157,6 +200,13 @@ exports.getMovieEta = function(id, callback){
 	// Get from Redis
 	rclient.get(hash, function(err, result){
 
+		// Log errors
+		if(err){
+			winston.error(err);
+			callback({});
+			return;
+		}
+
 		// Return if exists
 		if(result){
 			callback(JSON.parse(result));
@@ -165,6 +215,13 @@ exports.getMovieEta = function(id, callback){
 		else {
 
 			async.parallel(providers.eta(id), function(err, results) {
+
+				// Log errors
+				if(err){
+					winston.error(err);
+					callback({});
+					return;
+				}
 
 				var release_dates = {
 					'dvd': 0,

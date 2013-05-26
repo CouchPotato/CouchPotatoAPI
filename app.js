@@ -23,7 +23,10 @@ var express = require('express'),
 	restrict = require('./libs/restrict').restrict,
 
 	// HTTP server
-	http = require('http');
+	http = require('http')
+
+	// Logging
+	winston = require('winston');
 
 var app = express();
 	app.disable('x-powered-by');
@@ -48,6 +51,10 @@ app.enable('trust proxy');
 if(app.get('env') == 'development') {
 	app.use(express.errorHandler());
 	app.use(express.logger('dev'));
+}
+else {
+	winston.add(winston.transports.File, { filename: './logs/main.log' });
+	winston.remove(winston.transports.Console);
 }
 
 // Don't accept new incoming connections when restarting

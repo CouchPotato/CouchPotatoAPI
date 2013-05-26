@@ -1,6 +1,7 @@
 var fs = require('fs'),
 	redis = require('redis'),
-    rclient = redis.createClient();
+    rclient = redis.createClient(),
+    winston = require('winston');
 
 /**
  * GET home page.
@@ -19,6 +20,12 @@ exports.index = function(req, res) {
 			done--;
 			if(done == 0){
 				fs.readFile('./views/stats.html', 'utf8', function(err, html){
+
+					if(err){
+						winston.error(err);
+						res.send('Something went wrong');
+						return;
+					}
 
 					// Options
 					var options = JSON.stringify({
