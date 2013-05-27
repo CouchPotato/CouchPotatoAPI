@@ -8,19 +8,19 @@ var md5 = function(string){
 
 exports.stats = function(req, res, next) {
 
-	var version = req.header('HTTP_X_CP_VERSION') || '',
+	var version = req.header('x-cp-version') || '',
 
 		// Create identifier based on IP if it doesn't exist
-		user = (req.header('HTTP_X_CP_IDENTIFIER') || md5(req.ip)).substr(0, 10),
+		user = (req.header('x-cp-identifier') || md5(req.ip)).substr(0, 10),
 		split = version.split('-');
 
-	api_version = req.header('HTTP_X_CP_API') || 0;
+	api_version = req.header('x-cp-api') || 0;
 
 	if(split.length == 4){
 		req.stats = {
 			'os': global.trim(split[0]),
 			'type': global.trim(split[1]),
-			'version': global.trim(split[2]).substr(0, (v_type == 'desktop' ? 10 : 8))
+			'version': global.trim(split[2]).substr(0, (global.trim(split[1]) == 'desktop' ? 10 : 8))
 		};
 	}
 
