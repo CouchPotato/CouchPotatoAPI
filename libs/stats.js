@@ -14,7 +14,7 @@ exports.stats = function(req, res, next) {
 		user = (req.header('x-cp-identifier') || md5(req.ip)).substr(0, 10),
 		split = version.split('-');
 
-	api_version = req.header('x-cp-api') || 0;
+	req.api_version = req.header('x-cp-api') || 0;
 
 	if(split.length == 4){
 		req.stats = {

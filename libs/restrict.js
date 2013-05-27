@@ -3,7 +3,7 @@ exports.restrict = function(req, res, next) {
 
 	if(!global.isWhitelisted(req.ip)){
 		var stats = req.stats || {};
-		if(!stats.v_os || !stats.v_type || !stats.v_version){
+		if(!stats.os || !stats.type || !stats.version){
 			res.status(404).send('Not found');
 			return;
 		}
