@@ -17,6 +17,7 @@ var express = require('express'),
 	search = require('./routes/search'),
 	updates = require('./routes/updates'),
 	messages = require('./routes/messages'),
+	rstats = require('./routes/stats'),
 
 	// Stats & restriction
 	stats = require('./libs/stats').stats,
@@ -47,13 +48,15 @@ app.use(function(req, res, next){
 // Use proper IP
 app.enable('trust proxy');
 
+// Logger
+winston.add(winston.transports.File, { filename: './logs/main.log' });
+
 // Development only
 if(app.get('env') == 'development') {
 	app.use(express.errorHandler());
 	app.use(express.logger('dev'));
 }
 else {
-	winston.add(winston.transports.File, { filename: './logs/main.log' });
 	winston.remove(winston.transports.Console);
 }
 
@@ -74,6 +77,7 @@ app.get('/info/tt:imdb(\\d+)', stats, restrict,  info.imdb);
 app.get('/search/:query', stats, restrict, search.query);
 app.get('/messages/', stats, restrict, messages.list);
 app.get('/updates/', stats, updates.url);
+app.get('/stats/', rstats.show);
 
 httpServer = http.createServer(app).listen(app.get('port'), function() {
 	console.log('Express server listening on port ' + app.get('port'));
