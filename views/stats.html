@@ -4,18 +4,30 @@
 		<title>API Stats</title>
 		<script src="/chart.js"></script>
 		<meta name="viewport" content="initial-scale=1, user-scalable=no">
+		<script type="text/javascript">
+			window.onload = function() {
+				var user_chart = new CanvasJS.Chart('user_chart', {
+					axisY:{ minimum: 0, title: 'User stats' },
+					data: [{
+						type: 'column',
+						dataPoints: {{user_data}}
+					}]
+				});
+				user_chart.render();
+
+				var request_chart = new CanvasJS.Chart('request_chart', {
+					axisY:{ minimum: 0, title: 'Request stats' },
+					data: [{
+						type: 'column',
+						dataPoints: {{request_data}}
+					}]
+				});
+				request_chart.render();
+			}
+		</script>
 	</head>
 	<body>
-		<canvas id="users" height="250" width="1000"></canvas>
-
-		<script>
-			new Chart(document.getElementById("users").getContext("2d")).Bar({{day_data}}, {{options}});
-		</script>
-
-		<canvas id="requests" height="250" width="1000"></canvas>
-
-		<script>
-			new Chart(document.getElementById("requests").getContext("2d")).Bar({{request_data}}, {{options}});
-		</script>
+		<div id="user_chart" style="height: 300px; width: 100%;"></div>
+		<div id="request_chart" style="height: 300px; width: 100%;"></div>
 	</body>
 </html>

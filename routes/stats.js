@@ -33,40 +33,13 @@ exports.show = function(req, res) {
 					return;
 				}
 
-				// Options
-				var options = JSON.stringify({
-					'animation': false,
-					'scaleFontSize': 10
-				});
-				html = html.replace(new RegExp("{{options}}", "g"), options);
-
 				// Do by days
-				var labels = [], values = [];
-				user_results.reverse();
-				user_results.forEach(function(day){
-					labels.push(day[0]);
-					values.push(parseInt(day[1]));
-				});
-
-				var data = JSON.stringify({
-					'labels': labels,
-					'datasets': [{ 'data': values }]
-				});
-				html = html.replace('{{day_data}}', data);
+				user_results.reverse()
+				html = html.replace('{{user_data}}', JSON.stringify(user_results));
 
 				// Do requests
-				var labels = [], values = [];
-				request_results.reverse();
-				request_results.forEach(function(day){
-					labels.push(day[0]);
-					values.push(parseInt(day[1]));
-				});
-
-				var data = JSON.stringify({
-					'labels': labels,
-					'datasets': [{ 'data': values }]
-				});
-				html = html.replace('{{request_data}}', data);
+				request_results.reverse()
+				html = html.replace('{{request_data}}', JSON.stringify(request_results));
 
 				res.send(html);
 			});
@@ -84,7 +57,7 @@ exports.show = function(req, res) {
 		]
 	user_stats.forEach(function(stat){
 		rclient.zcount(ulr, stat.range[0], stat.range[1], function(err, result){
-			user_results.push([stat.name, result]);
+			user_results.push({'label': stat.name, 'y': parseInt(result)});
 
 			if(user_results.length == user_stats.length)
 				send_results();
@@ -106,7 +79,7 @@ exports.show = function(req, res) {
 		var day = d.getUTCFullYear() + '-' + (d.getUTCMonth() + 1) + '-' + d.getUTCDate();
 
 		rclient.get('hits-by-day:' + day, function(err, result){
-			request_results.push([day, result]);
+			request_results.push({'label': day, 'y': parseInt(result)});
 
 			if(request_results.length == last_x_days)
 				send_results();
