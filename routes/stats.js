@@ -13,8 +13,6 @@ exports.show = function(req, res) {
 		return;
 	}
 
-	winston.info('Showing some stats.');
-
 	var ulr = 'user-last-request',
 		now = Math.round(new Date().getTime() / 1000);
 
@@ -24,7 +22,9 @@ exports.show = function(req, res) {
 
 	var send_results = function(){
 		done--;
+
 		if(done == 0){
+
 			fs.readFile('./views/stats.html', 'utf8', function(err, html){
 
 				if(err){
@@ -111,6 +111,6 @@ exports.show = function(req, res) {
 			if(request_results.length == last_x_days)
 				send_results();
 		});
-		});
+	});
 
 };
