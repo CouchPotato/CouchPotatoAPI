@@ -85,16 +85,16 @@ httpServer = http.createServer(app).listen(app.get('port'), function() {
 
 // Graceful shutdown
 process.on('SIGTERM', function() {
-	console.log('Received kill signal (SIGTERM), shutting down gracefully.');
+	winston.info('Received kill signal (SIGTERM), shutting down gracefully.');
 	shutting_down = true;
 
 	httpServer.close(function() {
-		console.log('Closed out remaining connections.');
+		winston.info('Closed out remaining connections.');
 		return process.exit();
 	});
 
 	return setTimeout(function() {
-		console.error('Could not close connections in time, forcefully shutting down');
+		winston.error('Could not close connections in time, forcefully shutting down');
 		return process.exit(1);
 	}, 30 * 1000);
 });
