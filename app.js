@@ -2,9 +2,12 @@
 var Settings = require('settings');
 global.settings = new Settings(require('./config'));
 
+// Helpers
+require('./libs/helpers');
+global.createLogger = require('./libs/logger').createLogger;
+
 // Load the api in global
 global.api = require('./libs/api');
-require('./libs/helpers')
 
 // Import modules
 var express = require('express'),
@@ -49,7 +52,6 @@ app.use(function(req, res, next){
 app.enable('trust proxy');
 
 // Logger
-winston.add(winston.transports.File, { filename: './logs/main.log' });
 
 // Development only
 if(app.get('env') == 'development') {
@@ -57,8 +59,11 @@ if(app.get('env') == 'development') {
 	app.use(express.logger('dev'));
 }
 else {
+	winston.add(winston.transports.File, { filename: './logs/main.log' });
 	winston.remove(winston.transports.Console);
 }
+
+var log = global.createLogger(__filename);
 
 // Don't accept new incoming connections when restarting
 var shutting_down = false;
@@ -80,21 +85,21 @@ app.get('/updates/', stats, updates.url);
 app.get('/stats/', rstats.show);
 
 httpServer = http.createServer(app).listen(app.get('port'), function() {
-	console.log('Express server listening on port ' + app.get('port'));
+	log.info('Express server listening on port ' + app.get('port'));
 });
 
 // Graceful shutdown
 process.on('SIGTERM', function() {
-	winston.info('Received kill signal (SIGTERM), shutting down gracefully.');
+	log.info('Received kill signal (SIGTERM), shutting down gracefully.');
 	shutting_down = true;
 
 	httpServer.close(function() {
-		winston.info('Closed out remaining connections.');
+		log.info('Closed out remaining connections.');
 		return process.exit();
 	});
 
 	return setTimeout(function() {
-		winston.error('Could not close connections in time, forcefully shutting down');
+		log.error('Could not close connections in time, forcefully shutting down');
 		return process.exit(1);
 	}, 30 * 1000);
 });

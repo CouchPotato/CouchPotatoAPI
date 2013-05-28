@@ -1,6 +1,6 @@
 var settings = global.settings.moviedb,
 	moviedb = require('moviedb')(settings.apikey),
-	winston = require('winston');
+	log = global.createLogger(__filename);
 
 // TMDB image base url
 var img_url = 'http://cf2.imgobject.com/t/p/';
@@ -12,7 +12,7 @@ exports.info = function(id, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback(null, {});
 			return;
 		}
@@ -59,7 +59,7 @@ exports.search = function(options, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback(null, []);
 			return;
 		}
