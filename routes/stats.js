@@ -1,7 +1,7 @@
 var fs = require('fs'),
 	redis = require('redis'),
     rclient = redis.createClient(),
-    winston = require('winston');
+    log = global.createLogger(__filename);;
 
 /**
  * GET home page.
@@ -28,7 +28,7 @@ exports.show = function(req, res) {
 			fs.readFile('./views/stats.html', 'utf8', function(err, html){
 
 				if(err){
-					winston.error(err);
+					log.error(err);
 					res.send('Something went wrong');
 					return;
 				}

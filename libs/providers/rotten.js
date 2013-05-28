@@ -1,6 +1,6 @@
 var cheerio = require('cheerio'),
 	settings = global.settings.rotten,
-	winston = require('winston');
+	log = global.createLogger(__filename);
 
 var url = 'http://api.rottentomatoes.com/api/public/v1.0/';
 
@@ -21,7 +21,7 @@ exports.eta = function(imdb, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback(null, {});
 			return;
 		}

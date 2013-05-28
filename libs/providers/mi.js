@@ -2,7 +2,7 @@ var cheerio = require('cheerio'),
 	settings = global.settings.mi,
 	redis = require('redis'),
     rclient = redis.createClient(),
-    winston = require('winston');
+	log = global.createLogger(__filename);
 
 exports.eta = function(imdb, callback){
 
@@ -23,7 +23,7 @@ exports.eta = function(imdb, callback){
 
 			// Log errors
 			if(err){
-				winston.error(err);
+				log.error(err);
 				callback(null, {});
 				return;
 			}

@@ -1,6 +1,6 @@
 var cheerio = require('cheerio'),
 	settings = global.settings.mdb,
-	winston = require('winston');
+	log = global.createLogger(__filename);
 
 exports.eta = function(imdb, callback){
 
@@ -17,7 +17,7 @@ exports.eta = function(imdb, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback(null, {});
 			return;
 		}
@@ -26,9 +26,6 @@ exports.eta = function(imdb, callback){
 
 		// Find the title
 		var title = $('title').text().split('-')[0];
-
-		//$update = "UPDATE imdb_eta SET imdbid = '$id' WHERE title = '" . mysql_real_escape_string($title) . "'";
-		//mysql_query($update);
 
 		// Get all the dates and parse them
 		var imdb_time = null;

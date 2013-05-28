@@ -3,7 +3,7 @@ var async = require('async'),
 	providers = require('./providers'),
 	redis = require('redis'),
     rclient = redis.createClient(),
-    winston = require('winston');
+	log = global.createLogger(__filename);
 
 // Some logging around request
 exports.request = function(options, callback){
@@ -22,7 +22,7 @@ exports.isMovie = function(imdb, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback({});
 			return;
 		}
@@ -39,7 +39,7 @@ exports.isMovie = function(imdb, callback){
 
 				// Log errors
 				if(err){
-					winston.error(err);
+					log.error(err);
 					callback({});
 					return;
 				}
@@ -75,7 +75,7 @@ exports.getMovieInfo = function(id, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback({});
 			return;
 		}
@@ -91,7 +91,7 @@ exports.getMovieInfo = function(id, callback){
 
 				// Log errors
 				if(err){
-					winston.error(err);
+					log.error(err);
 					callback({});
 					return;
 				}
@@ -127,7 +127,7 @@ exports.searchMovie = function(options, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback({});
 			return;
 		}
@@ -143,7 +143,7 @@ exports.searchMovie = function(options, callback){
 
 				// Log errors
 				if(err){
-					winston.error(err);
+					log.error(err);
 					callback([]);
 					return;
 				}
@@ -202,7 +202,7 @@ exports.getMovieEta = function(id, callback){
 
 		// Log errors
 		if(err){
-			winston.error(err);
+			log.error(err);
 			callback({});
 			return;
 		}
@@ -218,7 +218,7 @@ exports.getMovieEta = function(id, callback){
 
 				// Log errors
 				if(err){
-					winston.error(err);
+					log.error(err);
 					callback({});
 					return;
 				}
