@@ -11,8 +11,9 @@ exports.info = function(id, callback){
 	moviedb.movieInfo({'id': id}, function(err, r){
 
 		// Log errors
-		if(err){
-			log.error(err);
+		if(!r || err){
+			if(!(err + '').indexOf('not found'))
+				log.error(err);
 			callback(null, {});
 			return;
 		}
