@@ -83,6 +83,9 @@ app.get('/search/:query', stats, restrict, search.query);
 app.get('/messages/', stats, restrict, messages.list);
 app.get('/updater/', stats, updater.url);
 app.get('/stats/', rstats.show);
+app.get('*', function(req, res){
+	res.status(404).send('Not found');
+});
 
 httpServer = http.createServer(app).listen(app.get('port'), function() {
 	log.info('Express server listening on port ' + app.get('port'));
