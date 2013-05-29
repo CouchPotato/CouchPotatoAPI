@@ -11,7 +11,7 @@ exports.stats = function(req, res, next) {
 	var version = req.header('x-cp-version') || '',
 
 		// Create identifier based on IP if it doesn't exist
-		user = (req.header('x-cp-identifier') || md5(req.ip)).substr(0, 10),
+		user = (req.header('x-cp-identifier') || md5(req.ip)).substr(0, 11),
 		split = version.split('-');
 
 	req.api_version = req.header('x-cp-api') || 0;
@@ -45,13 +45,18 @@ exports.stats = function(req, res, next) {
 		keys.push('hits-by-movie-by-type:' + imdb_id[0] + ':' + req.url.split('/')[1]);
 	}
 
+	var multi = rclient.multi();
+
 	// Increment all keys
 	for(i in keys) {
-		rclient.incr(keys[i]);
+		multi.incr(keys[i]);
 	}
 
 	// Set last request time for each user
 	now = Math.round(date.getTime() / 1000)
-	rclient.zadd('user-last-request', now, user);
+	multi.zadd('user-last-request', now, user);
+
+	// Run all commands
+	multi.exec();
 
 }
