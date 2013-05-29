@@ -15,7 +15,7 @@ exports.request = function(options, callback){
 
 exports.isMovie = function(imdb, callback){
 
-	var hash = 'ismovie:tt' + imdb;
+	var hash = 'ismovie:' + imdb;
 
 	// Get from Redis
 	rclient.get(hash, function(err, result){
