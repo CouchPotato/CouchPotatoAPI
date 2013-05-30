@@ -8,7 +8,7 @@ exports.imdb = function(req, res) {
 	global.api.getMovieEta(imdb, function(result){
 
 		res.type('application/json');
-		res.json(result);
+		res.json(global.merge({'dvd': 0,'theater': 0, 'bluray': false, 'expires': 0}, result));
 
 	});
 
