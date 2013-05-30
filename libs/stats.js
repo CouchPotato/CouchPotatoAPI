@@ -34,17 +34,9 @@ exports.stats = function(req, res, next) {
 	var keys = [
 		'hits-by-day:' + day,
 		'hits-by-by-month:' + month,
-		'hits-by-user:' + user,
-		'hits-by-user-by-day:' + user + ':' + day
 	];
 
-	// Add stats for movie if id is found
-    var imdb_id = req.url.match(/tt(\d{7})/);
-	if(imdb_id){
-		keys.push('hits-by-movie:' + imdb_id[0]);
-		keys.push('hits-by-movie-by-type:' + imdb_id[0] + ':' + req.url.split('/')[1]);
-	}
-
+	// Add keys in one go
 	var multi = rclient.multi();
 
 	// Increment all keys
