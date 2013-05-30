@@ -51,14 +51,8 @@ app.use(function(req, res, next){
 // Use proper IP
 app.enable('trust proxy');
 
-// Logger
-
 // Development only
-if(app.get('env') == 'development') {
-	app.use(express.errorHandler());
-	app.use(express.logger('dev'));
-}
-else {
+if(app.get('env') != 'development') {
 	winston.add(winston.transports.File, { filename: './logs/main.log' });
 	winston.remove(winston.transports.Console);
 }
@@ -87,6 +81,12 @@ app.get('*', function(req, res){
 	res.status(404).send('Not found');
 });
 
+// Log errors resulting in 500
+app.use(function(err, req, res, next){
+   console.log(err.stack);
+   res.status(500).send('Something isn\'t right.. abort abort!');
+});
+
 httpServer = http.createServer(app).listen(app.get('port'), function() {
 	log.info('Express server listening on port ' + app.get('port'));
 });
@@ -107,3 +107,8 @@ process.on('SIGTERM', function() {
 	}, 30 * 1000);
 });
 
+// Try to log exceptions
+process.on('uncaughtException', function (err) {
+	winston.error(err.stack);
+	process.exit(1);
+})
