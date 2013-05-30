@@ -37,7 +37,8 @@ exports.eta = function(imdb, callback){
 
 				$(['theater', 'dvd']).each(function(nr, key){
 					if(it.indexOf(key) > -1){
-						var str = $($('a', row.next())[0]).attr('href'),
+						var a = $($('a', row.next())[0]),
+							str = a.attr('href') || a.attr('name'),
 							split = str.substr(0, str.length-1).split('/');
 							dates[key] = global.strtotime(split[split.length-1] + '-' + split[split.length-3] + '-' + split[split.length-2])
 					}
