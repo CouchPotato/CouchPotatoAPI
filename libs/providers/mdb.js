@@ -49,7 +49,14 @@ exports.ismovie = function(imdb, callback){
 	global.api.request({
 		'timeout': settings.timout || 3000,
 		'url': settings.ismovie_url + imdb + '/'
-	}, function(error, response, body) {
+	}, function(err, response, body) {
+
+		// Log errors
+		if(err){
+			log.error(err);
+			callback(null, true);
+			return;
+		}
 
 		callback(null, !(body.toLowerCase().indexOf('(tv series') > -1));
 
