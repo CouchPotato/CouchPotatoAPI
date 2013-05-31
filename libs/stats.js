@@ -29,7 +29,8 @@ exports.stats = function(req, res, next) {
 	// Save statistics
 	var date = new Date(),
 		month = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1),
-		day = month + '-' + date.getUTCDate();
+		day = month + '-' + date.getUTCDate(),
+		now = Math.round(date.getTime() / 1000);
 
 	var keys = [
 		'hits-by-day:' + day,
@@ -45,8 +46,12 @@ exports.stats = function(req, res, next) {
 	}
 
 	// Set last request time for each user
-	now = Math.round(date.getTime() / 1000)
 	multi.zadd('user-last-request', now, user);
+
+	// Keep track of movies per user
+	var imdb_id = req.url.match(/tt\d{7}/g);
+	if(imdb_id && imdb_id.length == 1)
+		multi.zadd('usermovies:' + user, now, imdb_id[0]);
 
 	// Run all commands
 	multi.exec();
