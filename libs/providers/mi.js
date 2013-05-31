@@ -69,9 +69,16 @@ exports.eta = function(imdb, callback){
 				global.api.request({
 					'timeout': settings.timeout || 3000,
 					'url': search_url
-				}, function(error, response, body){
+				}, function(err, response, body){
 
-					var match = body.match(/movieinsider.com\/m(\d+)\/.*\//);
+					// Log errors
+					if(err){
+						log.error(err);
+						callback();
+						return;
+					}
+
+					var match = (body || '').match(/movieinsider.com\/m(\d+)\/.*\//);
 					if(match && match.length > 0 && match[1])
 						detail_url = settings.url + '/m'+match[1]+'/';
 
