@@ -100,14 +100,6 @@ exports.cron = function(req, res){
 
 				});
 
-				// Close all workers
-				workers.forEach(function(worker){
-					if(!worker) return;
-
-					worker.disconnect();
-					worker = undefined;
-				});
-
 			}
 
 			var goWork = function(i){
@@ -132,7 +124,7 @@ exports.cron = function(req, res){
 						}
 						else {
 
-							workers[i].disconnect();
+							workers[i].kill();
 							workers[i] = undefined;
 
 							var active_workers = 0;
