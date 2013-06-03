@@ -219,27 +219,27 @@ var test = function(){
 }
 
 var makeid = function(){
-    var text = "";
-    var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+	var text = "";
+	var possible = "abcdefghijklmnopqrstuvwxyz0123456789";
 
-    for( var i=0; i < 10; i++ )
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
+	for( var i=0; i < 10; i++ )
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-    return text;
+	return text;
 }
 
 var splitArray = function (items) {
-    var odd_ones = [],
-        even_ones = [],
-        length = items.length,
-        result = [];
+	var odd_ones = [],
+		even_ones = [],
+		length = items.length,
+		result = [];
 
-    for(var i=0; i < length; i++)
-        (i % 2 == 0 ? even_ones : odd_ones).push(items[i]);
+	for(var i=0; i < length; i++)
+		(i % 2 == 0 ? even_ones : odd_ones).push(items[i]);
 
-    even_ones.forEach(function(key, nr){
-    	result.push({'imdb': key, 'suggest_score': odd_ones[nr]});
-    });
+	even_ones.forEach(function(key, nr){
+		result.push({'imdb': key, 'suggest_score': odd_ones[nr]});
+	});
 
-    return result;
+	return result;
 }

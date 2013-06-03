@@ -2,7 +2,7 @@ var async = require('async'),
 	request = require('request'),
 	providers = require('./providers'),
 	redis = require('redis'),
-    rclient = redis.createClient(),
+	rclient = redis.createClient(),
 	log = global.createLogger(__filename);
 
 // Some logging around request
