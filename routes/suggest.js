@@ -32,8 +32,6 @@ exports.imdbs = function(req, res) {
 		return;
 	}
 
-	console.log(union, rem);
-
 	// Get suggestions
 	var multi = rclient.multi();
 	multi.zunionstore(union); // Get all requested
