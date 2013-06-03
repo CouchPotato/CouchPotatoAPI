@@ -55,7 +55,7 @@ exports.info = function(imdb, callback){
 				'poster': (movie.Poster && movie.Poster.length > 4) ? [movie.Poster] : [],
 			},
 			'rating': {
-				'imdb': [parseFloat(movie.imdbRating || 0), parseInt((movie.imdbVotes || 0).replace(',', ''))],
+				'imdb': [parseFloat(movie.imdbRating || 0), parseInt((movie.imdbVotes || '0').replace(',', ''))],
 			},
 			'plot': movie.Plot,
 			'imdb': movie.imdbID,
