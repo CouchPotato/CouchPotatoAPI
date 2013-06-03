@@ -18,6 +18,7 @@ var express = require('express'),
 	ismovie = require('./routes/ismovie'),
 	info = require('./routes/info'),
 	search = require('./routes/search'),
+	suggest = require('./routes/suggest'),
 	updater = require('./routes/updater'),
 	messages = require('./routes/messages'),
 	rstats = require('./routes/stats'),
@@ -41,6 +42,7 @@ app.use(express.static(__dirname + '/public'));
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.use(express.compress());
+app.use(express.bodyParser());
 
 // Replace header
 app.use(function(req, res, next){
@@ -74,6 +76,8 @@ app.get('/eta/tt:imdb(\\d{7})', stats, restrict, eta.imdb);
 app.get('/ismovie/tt:imdb(\\d{7})', stats, restrict, ismovie.imdb);
 app.get('/info/tt:imdb(\\d{7})', stats, restrict,  info.imdb);
 app.get('/search/:query', stats, restrict, search.query);
+app.get('/suggest/tt:imdb(\\d{7})', stats, restrict, suggest.imdbs);
+app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, restrict, messages.list);
 app.get('/updater/', stats, updater.url);
 app.get('/stats/', rstats.show);
