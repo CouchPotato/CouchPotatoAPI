@@ -1,8 +1,7 @@
 var redis = require('redis'),
     rclient = redis.createClient(),
     fork = require('child_process').fork,
-    cpus = require('os').cpus().length,
-    cron_running = null;
+    cpus = require('os').cpus().length;
 
 /**
  * Give suggestions based on other movies
@@ -53,116 +52,132 @@ exports.cron = function(req, res){
 		return;
 	}
 
-	if(cron_running !== null){
-		res.type('application/json');
-		res.json({
-			'message': 'Already running',
-			'progress': cron_running
-		});
+	rclient.get('suggest_cron', function(err, status){
 
-		return;
-	}
-
-	cron_running = 0;
-
-	var workers = [],
-		date = new Date(),
-		now = Math.round(date.getTime() / 1000),
-		results,
-		total,
-		per_process = 100;
-
-	var doRename = function(){
-
-		// Get all temp suggestion keys
-		rclient.keys('suggest_temp:*', function(err, result){
-
-			console.log('Suggestions: ' + result.length);
-
-			// Rename them from temp
-			result.forEach(function(suggest_key){
-				var rename_to = suggest_key.replace('suggest_temp:', 'suggest:');
-				var multi = rclient.multi();
-
-				multi.rename(suggest_key, rename_to);
-				multi.zadd('suggestions', now, rename_to);
-
-				multi.exec()
-			});
-
-			// Get older suggestions and remove them
-			rclient.zremrangebyscore('suggestions', '-inf', '('+now);
+		// Already running
+		if(status){
 
 			res.type('application/json');
-			res.json({});
+			res.json({
+				'message': 'Already running',
+				'progress': status
+			});
 
-			cron_running = null;
+		}
+		else {
 
-		});
+			// Set running
+			rclient.set('suggest_cron', '100%');
 
-	}
+			var workers = [],
+				date = new Date(),
+				now = Math.round(date.getTime() / 1000),
+				results,
+				total,
+				per_process = 100;
 
-	var goWork = function(i){
+			var doRename = function(){
 
-		var users = results.splice(0, per_process);
-		cron_running = Math.round((results.length / total)*10000)/100 + '%';
+				// Get all temp suggestion keys
+				rclient.keys('suggest_temp:*', function(err, result){
 
-		// Send users to process to the worker
-		workers[i].send(users);
+					console.log('Suggestions: ' + result.length);
 
-	}
+					// Rename them from temp
+					result.forEach(function(suggest_key){
+						var rename_to = suggest_key.replace('suggest_temp:', 'suggest:');
+						var multi = rclient.multi();
 
-	var receiveMessage = function(i){
+						multi.rename(suggest_key, rename_to);
+						multi.zadd('suggestions', now, rename_to);
 
-		// Send new users when one exits
-		workers[i].on('message', function(message){
+						multi.exec()
+					});
 
-			if(message.type == 'done'){
-				if(results.length > 0){
-					goWork(i);
-				}
-				else {
+					// Get older suggestions and remove them
+					rclient.zremrangebyscore('suggestions', '-inf', '('+now);
+					rclient.del('suggest_cron');
 
-					workers[i].disconnect();
-					workers[i] = undefined;
+				});
 
-					var active_workers = 0;
-					for(var nr = 0; nr < cpus; nr++) {
-						if(workers[nr])
-							active_workers++;
-					}
+				// Close all workers
+				workers.forEach(function(worker){
+					if(!worker) return;
 
-					// Workers are done, go process results
-					if(active_workers == 0)
-						doRename();
+					worker.disconnect();
+					worker = undefined;
+				});
 
-				}
 			}
 
-		});
+			var goWork = function(i){
 
-	}
+				var users = results.splice(0, per_process);
+				rclient.set('suggest_cron', Math.round((results.length / total)*10000)/100 + '%');
 
-	rclient.zrangebyscore('user-last-request', (now)-2419200, now-10, function(err, result){
+				// Send users to process to the worker
+				if(users)
+					workers[i].send(users);
 
-		results = result;
-		total = result.length;
+			}
 
-		// Spawn workers
-		for(var nr = 0; nr < cpus; nr++) {
-			workers[nr] = fork(__dirname+'/../libs/suggest_worker.js');
+			var receiveMessage = function(i){
 
-			receiveMessage(nr);
-			goWork(nr);
+				// Send new users when one exits
+				workers[i].on('message', function(message){
+
+					if(message.type == 'done'){
+						if(results.length > 0){
+							goWork(i);
+						}
+						else {
+
+							workers[i].disconnect();
+							workers[i] = undefined;
+
+							var active_workers = 0;
+							for(var nr = 0; nr < cpus; nr++) {
+								if(workers[nr])
+									active_workers++;
+							}
+
+							// Workers are done, go process results
+							if(active_workers == 0)
+								doRename();
+
+						}
+					}
+
+				});
+
+			}
+
+			// Get last months user
+			rclient.zrangebyscore('user-last-request', (now)-2419200, now-10, function(err, result){
+
+				results = result;
+				total = result.length;
+
+				// Spawn workers
+				for(var nr = 0; nr < cpus; nr++) {
+					workers[nr] = fork(__dirname+'/../libs/suggest_worker.js');
+
+					receiveMessage(nr);
+					goWork(nr);
+				}
+
+				res.type('application/json');
+				res.json({
+					'message': 'Running',
+					'progress': '100%'
+				});
+
+			});
+
 		}
 
-		res.type('application/json');
-		res.json({
-			'message': 'Running',
-			'progress': cron_running
-		});
+	})
 
-	});
 
 };
 
@@ -181,7 +196,7 @@ var test = function(){
 
 		var movie_count = Math.floor(Math.random()*100);
 		for(var nr = 0; nr < movie_count; nr++){
-			var imdb = 'tt' + Math.floor(Math.random()*100);
+			var imdb = 'tt08003' + Math.floor(Math.random()*99);
 
 			multi.zadd('usermovies:' + user, now, imdb);
 
