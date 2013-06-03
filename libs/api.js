@@ -102,7 +102,7 @@ exports.getMovieInfo = function(id, callback){
 				});
 
 				// Cache
-				rclient.setex(hash, 3600, JSON.stringify(movie_info));
+				rclient.setex(hash, 86400, JSON.stringify(movie_info));
 
 				// Send back
 				callback(movie_info);
@@ -179,7 +179,7 @@ exports.searchMovie = function(options, callback){
 				});
 
 				// Cache
-				rclient.setex(hash, 3600, JSON.stringify(new_results));
+				rclient.setex(hash, 86400, JSON.stringify(new_results));
 
 				// Send back
 				callback(new_results);
