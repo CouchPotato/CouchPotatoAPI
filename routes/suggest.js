@@ -1,7 +1,8 @@
 var redis = require('redis'),
-    rclient = redis.createClient(),
-    fork = require('child_process').fork,
-    cpus = require('os').cpus().length;
+	async = require('async'),
+	rclient = redis.createClient(),
+	fork = require('child_process').fork,
+	cpus = require('os').cpus().length;
 
 /**
  * Give suggestions based on other movies
@@ -35,11 +36,28 @@ exports.imdbs = function(req, res) {
 	var multi = rclient.multi();
 	multi.zunionstore(union); // Get all requested
 	multi.zrem(rem) // Remove ignored
-	multi.zrevrange('out', 0, 5, 'WITHSCORES');
+	multi.zrevrange('out', 0, 4, 'WITHSCORES');
 	multi.del('out');
 	multi.exec(function(err, result){
-		res.type('application/json');
-		res.json(splitArray(result[result.length-2]));
+
+		var movies = splitArray(result[result.length-2]),
+			func_list = [];
+
+		movies.forEach(function(movie){
+
+			func_list.push(function(callback){
+				global.api.getMovieInfo(movie.imdb, function(movie_info){
+					callback(null, global.merge(movie, movie_info));
+				});
+			});
+
+		});
+
+		async.series(func_list, function(err, results){
+			res.type('application/json');
+			res.json(results);
+		});
+
 	});
 
 };
@@ -220,7 +238,7 @@ var splitArray = function (items) {
         (i % 2 == 0 ? even_ones : odd_ones).push(items[i]);
 
     even_ones.forEach(function(key, nr){
-    	result.push({'movie': key, 'score': odd_ones[nr]});
+    	result.push({'imdb': key, 'suggest_score': odd_ones[nr]});
     });
 
     return result;
