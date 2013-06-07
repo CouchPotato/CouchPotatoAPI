@@ -9,21 +9,22 @@ var redis = require('redis'),
  */
 exports.imdbs = function(req, res) {
 
-	var imdbs = req.body.suggest || [req.params.imdb] || [],
-		imdbs_ignore = req.body.ignore || [],
+	var imdbs_suggest = req.body.movies.split(','),
+		imdbs_ignore = req.body.ignore.split(',')
 		union = ['out'],
 		rem = ['out'];
 
 	// Suggestions for
-	union.push(imdbs.length);
-	imdbs.forEach(function(imdb){
-		union.push('suggest:tt'+imdb);
-		rem.push(imdb);
+	union.push(imdbs_suggest.length);
+	imdbs_suggest.forEach(function(suggest){
+		union.push('suggest:'+suggest);
+		rem.push(suggest);
 	});
 
 	// Ignore requested
 	imdbs_ignore.forEach(function(imdb){
-		rem.push('tt'+imdb);
+		if(imdb.length == 9)
+			rem.push(imdb);
 	});
 
 	if(union.length == 2){
