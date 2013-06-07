@@ -1,3 +1,6 @@
+global.p = function(){
+	console.log(arguments);
+}
 
 // check if ip is whitelisted
 global.isWhitelisted = function(ip){
@@ -7,16 +10,25 @@ global.isWhitelisted = function(ip){
 // Merge objects
 global.merge = function(obj1, obj2) {
 
-	for(var p in obj2) {
+	for(var k in obj2) {
 		try {
-			// Property in destination object set; update its value.
-			if(obj2[p].constructor == Object)
-				obj1[p] = global.merge(obj1[p], obj2[p]);
-			else
-				obj1[p] = obj2[p];
+			if(obj2[k].constructor == Array){  // Merge lists
+				obj1[k] = obj2[k].concat(obj1[k]);
+				obj1[k] = obj1[k].filter(function(elem, pos) {
+					return obj1[k].indexOf(elem) == pos && elem != null;
+				});
+			}
+			else if(obj2[k].constructor == Object) // Property in destination object set; update its value.
+				obj1[k] = merge(obj1[k], obj2[k]);
+			else {
+				if(obj1[k] && obj2[k] && obj1[k].length > obj2[k].length)
+					continue;
+				else
+					obj1[k] = obj2[k];
+			}
 		}
 		catch(e) {
-			obj1[p] = obj2[p];
+			obj1[k] = obj2[k];
 		}
 	}
 
