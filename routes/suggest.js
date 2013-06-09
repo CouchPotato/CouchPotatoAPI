@@ -37,7 +37,7 @@ exports.imdbs = function(req, res) {
 	var multi = rclient.multi();
 	multi.zunionstore(union); // Get all requested
 	multi.zrem(rem) // Remove ignored
-	multi.zrevrange('out', 0, 4, 'WITHSCORES');
+	multi.zrevrange('out', 0, 9, 'WITHSCORES');
 	multi.del('out');
 	multi.exec(function(err, result){
 
