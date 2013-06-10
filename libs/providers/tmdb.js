@@ -52,7 +52,7 @@ exports.info = function(id, callback){
 
 exports.search = function(options, callback){
 
-	options = global.merge(options, {
+	options = merge(options, {
 		'search_type': 'ngram'
 	})
 

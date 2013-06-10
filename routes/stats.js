@@ -8,7 +8,7 @@ var fs = require('fs'),
  */
 exports.show = function(req, res) {
 
-	if(!global.isWhitelisted(req.ip)){
+	if(!isWhitelisted(req.ip)){
 		res.redirect('/');
 		return;
 	}

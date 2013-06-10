@@ -16,7 +16,7 @@ exports.eta = function(imdb, callback){
 
 	var get_details = function(detail_url){
 
-		global.api.request({
+		api.request({
 			'timeout': settings.timeout || 3000,
 			'url': detail_url
 		}, function(err, response, body){
@@ -40,7 +40,7 @@ exports.eta = function(imdb, callback){
 						var a = $($('a', row.next())[0]),
 							str = a.attr('href') || a.attr('name'),
 							split = str.substr(0, str.length-1).split('/');
-							dates[key] = global.strtotime(split[split.length-1] + '-' + split[split.length-3] + '-' + split[split.length-2])
+							dates[key] = strtotime(split[split.length-1] + '-' + split[split.length-3] + '-' + split[split.length-2])
 					}
 				});
 
@@ -62,11 +62,11 @@ exports.eta = function(imdb, callback){
 		// Search for the url
 		else {
 
-			global.api.getMovieInfo(imdb, function(movie_info){
+			api.getMovieInfo(imdb, function(movie_info){
 
 				var search_url = 'http://www.google.com/cse?cx=partner-pub-9136844266644239%3A4586776767&sa=Search&num=1&nojs=1&q='+encodeURIComponent(movie_info.original_title)+'+%28'+movie_info.year+'%29';
 
-				global.api.request({
+				api.request({
 					'timeout': settings.timeout || 3000,
 					'url': search_url
 				}, function(err, response, body){

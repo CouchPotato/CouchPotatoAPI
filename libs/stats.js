@@ -18,9 +18,9 @@ exports.stats = function(req, res, next) {
 
 	if(split.length == 4){
 		req.stats = {
-			'os': global.trim(split[0]),
-			'type': global.trim(split[1]),
-			'version': global.trim(split[2]).substr(0, (global.trim(split[1]) == 'desktop' ? 10 : 8))
+			'os': trim(split[0]),
+			'type': trim(split[1]),
+			'version': trim(split[2]).substr(0, (trim(split[1]) == 'desktop' ? 10 : 8))
 		};
 	}
 

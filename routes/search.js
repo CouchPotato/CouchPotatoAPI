@@ -3,7 +3,7 @@
  */
 exports.query = function(req, res) {
 
-	var query = global.trim(req.params.query).replace('+', ' ');
+	var query = trim(req.params.query).replace('+', ' ');
 
 	// Get year
 	if(query.length > 6){
@@ -26,15 +26,15 @@ exports.query = function(req, res) {
 		}
 	}
 
-	query = global.trim(query);
+	query = trim(query);
 
-	var options = global.merge({
+	var options = merge({
 		'query': query,
 		'limit': 5,
 		'autocomplete': ['true', '1'].indexOf((req.query.autocomplete || '').toLowerCase()) != -1
 	}, year ? {'year': year} : {});
 
-	global.api.searchMovie(options, function(results){
+	api.searchMovie(options, function(results){
 
 		res.type('application/json');
 		res.json(results);

@@ -7,7 +7,7 @@ var async = require('async'),
 
 // Some logging around request
 exports.request = function(options, callback){
-	if(global.settings.ENV == 'development')
+	if(settings.ENV == 'development')
 		console.log('Opening url:' + (options instanceof Object ? options.url : options));
 
 	return request(options, callback);
@@ -98,7 +98,7 @@ exports.getMovieInfo = function(id, callback){
 
 				var movie_info = {};
 				results.forEach(function(result){
-					movie_info = global.merge(movie_info, result);
+					movie_info = merge(movie_info, result);
 				});
 
 				// Cache
@@ -165,7 +165,7 @@ exports.searchMovie = function(options, callback){
 								ids.push(result.imdb);
 							}
 							else {
-								new_results[current_pos] = global.merge(new_results[current_pos], result);
+								new_results[current_pos] = merge(new_results[current_pos], result);
 							}
 
 						}

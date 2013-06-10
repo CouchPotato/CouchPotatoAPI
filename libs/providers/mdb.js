@@ -10,7 +10,7 @@ exports.eta = function(imdb, callback){
 		return;
 	}
 
-	global.api.request({
+	api.request({
 		'timeout': settings.timout || 3000,
 		'url': settings.eta_url + imdb + '/releaseinfo'
 	}, function(err, response, body) {
@@ -30,7 +30,7 @@ exports.eta = function(imdb, callback){
 		// Get all the dates and parse them
 		var imdb_time = null;
 		$('#tn15content > table td[align=right]').each(function() {
-			var new_time = global.strtotime($(this).text());
+			var new_time = strtotime($(this).text());
 			if(!imdb_time || imdb_time > new_time)
 			 	imdb_time = new_time;
 		});
@@ -46,7 +46,7 @@ exports.eta = function(imdb, callback){
 
 exports.ismovie = function(imdb, callback){
 
-	global.api.request({
+	api.request({
 		'timeout': settings.timout || 3000,
 		'url': settings.ismovie_url + imdb + '/'
 	}, function(err, response, body) {

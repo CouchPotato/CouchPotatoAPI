@@ -47,8 +47,8 @@ exports.imdbs = function(req, res) {
 		movies.forEach(function(movie){
 
 			func_list.push(function(callback){
-				global.api.getMovieInfo(movie.imdb, function(movie_info){
-					callback(null, global.merge(movie, movie_info));
+				api.getMovieInfo(movie.imdb, function(movie_info){
+					callback(null, merge(movie, movie_info));
 				});
 			});
 
@@ -66,7 +66,7 @@ exports.imdbs = function(req, res) {
 // Process user movies and fill suggestions
 exports.cron = function(req, res){
 
-	if(!global.isWhitelisted(req.ip)){
+	if(!isWhitelisted(req.ip)){
 		res.redirect('/');
 		return;
 	}

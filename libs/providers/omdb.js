@@ -9,7 +9,7 @@ exports.info = function(imdb, callback){
 		return;
 	}
 
-	global.api.request({
+	api.request({
 		'timeout': settings.timout || 3000,
 		'url': 'http://www.omdbapi.com/?i=' + imdb,
 		'json': true

@@ -14,7 +14,7 @@ exports.eta = function(imdb, callback){
 
 	var now = Math.round(new Date().getTime() / 1000);
 
-	global.api.request({
+	api.request({
 		'timeout': settings.timout || 3000,
 		'url': url + 'movie_alias.json?type=imdb&id=' + imdb.replace('tt', '') + '&apikey=' + settings.apikey
 	}, function(err, response, body){
@@ -30,9 +30,9 @@ exports.eta = function(imdb, callback){
 			dates = rotten.release_dates;
 
 		callback(null, dates ? {
-			'dvd': dates.dvd ? global.strtotime(dates.dvd) : 0,
-			'theater': dates.theater ? global.strtotime(dates.theater) : 0,
-			'bluray': dates.dvd ? (global.strtotime(dates.dvd) > 0 && rotten.year > 2005) : false,
+			'dvd': dates.dvd ? strtotime(dates.dvd) : 0,
+			'theater': dates.theater ? strtotime(dates.theater) : 0,
+			'bluray': dates.dvd ? (strtotime(dates.dvd) > 0 && rotten.year > 2005) : false,
 			'expires': now+(604800*2)
 		} : null);
 

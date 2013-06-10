@@ -1,7 +1,7 @@
 
 exports.restrict = function(req, res, next) {
 
-	if(!global.isWhitelisted(req.ip)){
+	if(!isWhitelisted(req.ip)){
 		var stats = req.stats || {};
 		if(!stats.os || !stats.type || !stats.version){
 			res.status(404).send('Not found');
