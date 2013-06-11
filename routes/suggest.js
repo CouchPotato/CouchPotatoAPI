@@ -9,8 +9,8 @@ var redis = require('redis'),
  */
 exports.imdbs = function(req, res) {
 
-	var imdbs_suggest = req.body.movies.split(','),
-		imdbs_ignore = req.body.ignore.split(',')
+	var imdbs_suggest = (req.body.movies || req.query.movies || '').split(','),
+		imdbs_ignore = (req.body.ignore || req.query.ignore || '').split(','),
 		union = ['out'],
 		rem = ['out'];
 
@@ -102,20 +102,31 @@ exports.cron = function(req, res){
 
 					console.log('Suggestions: ' + result.length);
 
-					// Rename them from temp
 					result.forEach(function(suggest_key){
 						var rename_to = suggest_key.replace('suggest_temp:', 'suggest:');
+
+						// Rename them from temp
 						var multi = rclient.multi();
+							multi.rename(suggest_key, rename_to);
+							multi.zadd('suggestions', now, rename_to);
 
-						multi.rename(suggest_key, rename_to);
-						multi.zadd('suggestions', now, rename_to);
+							// Limit them with score of 20 and up, or 500 per set
+							multi.zremrangebyscore(rename_to, '-inf', '(20');
+							multi.zremrangebyrank(rename_to, 0, -499);
 
-						multi.exec()
+							multi.exec()
 					});
 
 					// Get older suggestions and remove them
-					rclient.zremrangebyscore('suggestions', '-inf', '('+now);
-					rclient.del('suggest_cron');
+					rclient.zrangebyscore('suggestions', '-inf', '('+now, function(err, result){
+
+						var multi = rclient.multi();
+							multi.del(result);
+							multi.zremrangebyscore('suggestions', '-inf', '('+now);
+							multi.del('suggest_cron');
+							multi.exec();
+
+					})
 
 				});
 

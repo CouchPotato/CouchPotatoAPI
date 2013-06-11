@@ -76,6 +76,7 @@ app.get('/eta/tt:imdb(\\d{7})', stats, restrict, eta.imdb);
 app.get('/ismovie/tt:imdb(\\d{7})', stats, restrict, ismovie.imdb);
 app.get('/info/tt:imdb(\\d{7})', stats, restrict,  info.imdb);
 app.get('/search/:query', stats, restrict, search.query);
+app.get('/suggest/', restrict, suggest.imdbs);
 app.post('/suggest/', stats, restrict, suggest.imdbs);
 app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, restrict, messages.list);
@@ -87,7 +88,7 @@ app.get('*', function(req, res){
 
 // Log errors resulting in 500
 app.use(function(err, req, res, next){
-   console.log(err.stack);
+   console.log(req.url, err.stack);
    res.status(500).send('Something isn\'t right.. abort abort!');
 });
 
