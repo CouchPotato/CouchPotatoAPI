@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd /root/api
+git pull
+npm install
+
+for i in {1..8}
+do
+    service couchpotato_api$i stop
+    service couchpotato_api$i start
+done
