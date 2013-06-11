@@ -87,9 +87,9 @@ app.get('*', function(req, res){
 });
 
 // Log errors resulting in 500
-app.use(function(err, req, res, next){
-   console.log(req.url, err.stack);
-   res.status(500).send('Something isn\'t right.. abort abort!');
+app.use(function(err, req, res, next) {
+	winston.error(req.url + ': ' + err.stack);
+	res.end(err.message);
 });
 
 httpServer = http.createServer(app).listen(app.get('port'), function() {
