@@ -102,20 +102,36 @@ exports.cron = function(req, res){
 
 					console.log('Suggestions: ' + result.length);
 
-					// Rename them from temp
 					result.forEach(function(suggest_key){
 						var rename_to = suggest_key.replace('suggest_temp:', 'suggest:');
 						var multi = rclient.multi();
 
+						// Rename them from temp
+						multi.del(rename_to);
 						multi.rename(suggest_key, rename_to);
+
+						// Limit them with score of 20 and up, or 500 per set
+						multi.zremrangebyscore(rename_to, '-inf', '(20');
+						multi.zremrangebyrank(rename_to, 500 -1);
+
 						multi.zadd('suggestions', now, rename_to);
 
 						multi.exec()
 					});
 
 					// Get older suggestions and remove them
-					rclient.zremrangebyscore('suggestions', '-inf', '('+now);
-					rclient.del('suggest_cron');
+					rclient.zrangebyscore('suggestions', '-inf', '('+now, function(err, result){
+
+						var del_suggestions = ['suggestions'].concat(result);
+
+						var multi = rclient.multi();
+							if(del_suggestions.length > 1)
+								multi.del(del_suggestions);
+							multi.zremrangebyscore('suggestions', '-inf', '('+now);
+							multi.del('suggest_cron');
+							multi.exec()
+
+					})
 
 				});
 
