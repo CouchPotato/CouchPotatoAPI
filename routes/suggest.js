@@ -112,7 +112,7 @@ exports.cron = function(req, res){
 
 						// Limit them with score of 20 and up, or 500 per set
 						multi.zremrangebyscore(rename_to, '-inf', '(20');
-						multi.zremrangebyrank(rename_to, 500 -1);
+						multi.zremrangebyrank(rename_to, '500', '-1');
 
 						multi.zadd('suggestions', now, rename_to);
 
