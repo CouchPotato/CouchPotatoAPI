@@ -76,6 +76,7 @@ app.get('/eta/tt:imdb(\\d{7})', stats, restrict, eta.imdb);
 app.get('/ismovie/tt:imdb(\\d{7})', stats, restrict, ismovie.imdb);
 app.get('/info/tt:imdb(\\d{7})', stats, restrict,  info.imdb);
 app.get('/search/:query', stats, restrict, search.query);
+app.get('/suggest/', restrict, suggest.imdbs);
 app.post('/suggest/', stats, restrict, suggest.imdbs);
 app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, restrict, messages.list);

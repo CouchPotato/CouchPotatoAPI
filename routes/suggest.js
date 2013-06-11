@@ -9,8 +9,8 @@ var redis = require('redis'),
  */
 exports.imdbs = function(req, res) {
 
-	var imdbs_suggest = req.body.movies.split(','),
-		imdbs_ignore = req.body.ignore.split(',')
+	var imdbs_suggest = (req.body.movies || req.query.movies || '').split(','),
+		imdbs_ignore = (req.body.ignore || req.query.ignore || '').split(','),
 		union = ['out'],
 		rem = ['out'];
 
