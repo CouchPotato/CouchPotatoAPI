@@ -122,11 +122,8 @@ exports.cron = function(req, res){
 					// Get older suggestions and remove them
 					rclient.zrangebyscore('suggestions', '-inf', '('+now, function(err, result){
 
-						var del_suggestions = ['suggestions'].concat(result);
-
 						var multi = rclient.multi();
-							if(del_suggestions.length > 1)
-								multi.del(del_suggestions);
+							multi.del(result);
 							multi.zremrangebyscore('suggestions', '-inf', '('+now);
 							multi.del('suggest_cron');
 							multi.exec()
