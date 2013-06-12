@@ -36,6 +36,18 @@ var express = require('express'),
 var app = express();
 	app.disable('x-powered-by');
 
+// Reset some stuff first
+app.use(function(req, res, next){
+	// Replace header
+	res.setHeader('X-Powered-By', 'CouchPotato ('+app.get('port')+')');
+
+	// Unescape url
+	try { req.url = decodeURIComponent(req.url); }
+	catch(e) { req.url = unescape(req.url); }
+
+	next();
+});
+
 // Set static folder
 app.use(express.static(__dirname + '/public'));
 
@@ -43,12 +55,6 @@ app.use(express.static(__dirname + '/public'));
 app.set('port', process.env.PORT || 3000);
 app.use(express.compress());
 app.use(express.bodyParser());
-
-// Replace header
-app.use(function(req, res, next){
-	res.setHeader('X-Powered-By', 'CouchPotato ('+app.get('port')+')');
-	next();
-});
 
 // Use proper IP
 app.enable('trust proxy');
@@ -74,7 +80,7 @@ app.use(function(req, res, next) {
 app.get('/', home.index);
 app.get('/eta/tt:imdb(\\d{7})', stats, restrict, eta.imdb);
 app.get('/ismovie/tt:imdb(\\d{7})', stats, restrict, ismovie.imdb);
-app.get('/info/tt:imdb(\\d{7})', stats, restrict,  info.imdb);
+app.get('/info/tt:imdb(\\d{7})', stats, restrict, info.imdb);
 app.get('/search/:query', stats, restrict, search.query);
 app.get('/suggest/', restrict, suggest.imdbs);
 app.post('/suggest/', stats, restrict, suggest.imdbs);
@@ -87,9 +93,9 @@ app.get('*', function(req, res){
 });
 
 // Log errors resulting in 500
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res, next){
 	winston.error(req.url + ': ' + err.stack);
-	res.end(err.message);
+	res.status(500).send('Something isn\'t right.. abort abort!');
 });
 
 httpServer = http.createServer(app).listen(app.get('port'), function() {
