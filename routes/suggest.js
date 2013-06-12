@@ -109,11 +109,12 @@ exports.cron = function(req, res){
 						var multi = rclient.multi();
 							multi.rename(suggest_key, rename_to);
 							multi.zadd('suggestions', now, rename_to);
+							multi.exec()
 
-							// Limit them with score of 20 and up, or 500 per set
+						// Limit them with score of 20 and up, or 500 per set
+						var multi = rclient.multi();
 							multi.zremrangebyscore(rename_to, '-inf', '(20');
 							multi.zremrangebyrank(rename_to, 0, -499);
-
 							multi.exec()
 					});
 
