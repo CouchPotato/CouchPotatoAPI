@@ -45,6 +45,8 @@ app.use(function(req, res, next){
 	try { req.url = decodeURIComponent(req.url); }
 	catch(e) { req.url = unescape(req.url); }
 
+	req.url = req.url.replace(/%/g, '%25').replace('/\+/g', ' ');
+
 	next();
 });
 
