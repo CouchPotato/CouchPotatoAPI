@@ -56,17 +56,6 @@ app.use(function(req, res, next){
 	next();
 });
 
-// Catch timeout errors
-app.use(function(req, res, next){
-
-	req.socket.on('timeout', function() {
-		winston.error('Timeout:' + req.url);
-		res.status(504).send('Connection timeout');
-	});
-
-	next();
-})
-
 // Set static folder
 app.use(express.static(__dirname + '/public'));
 
