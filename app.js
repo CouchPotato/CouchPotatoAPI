@@ -110,24 +110,28 @@ httpServer = http.createServer(app).listen(app.get('port'), function() {
 	log.info('Express server listening on port ' + app.get('port'));
 });
 
-// Graceful shutdown
-process.on('SIGTERM', function() {
-	log.info('Received kill signal (SIGTERM), shutting down gracefully.');
+var graceful = function() {
 	shutting_down = true;
 
 	httpServer.close(function() {
-		log.info('Closed out remaining connections.');
+		winston.info('Closed out remaining connections.');
 		return process.exit();
 	});
 
 	return setTimeout(function() {
-		log.error('Could not close connections in time, forcefully shutting down');
+		winston.error('Could not close connections in time, forcefully shutting down');
 		return process.exit(1);
 	}, 30 * 1000);
+}
+
+// Graceful shutdown
+process.on('SIGTERM', function(){
+	winston.info('Received kill signal (SIGTERM), shutting down gracefully.');
+	graceful();
 });
 
 // Try to log exceptions
 process.on('uncaughtException', function (err) {
 	winston.error(err.stack);
-	process.exit(1);
+	graceful();
 })
