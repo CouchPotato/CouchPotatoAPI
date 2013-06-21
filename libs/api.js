@@ -8,7 +8,7 @@ var async = require('async'),
 // Some logging around request
 exports.request = function(options, callback){
 	if(settings.ENV == 'development')
-		console.log('Opening url:' + (options instanceof Object ? options.url : options));
+		log.info('Opening url:' + (options instanceof Object ? options.url : options));
 
 	return request(options, callback);
 }
