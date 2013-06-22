@@ -30,7 +30,7 @@ exports.query = function(req, res) {
 
 	var options = merge({
 		'query': query,
-		'limit': 5,
+		'limit': req.query.limit || 5,
 		'autocomplete': ['true', '1'].indexOf((req.query.autocomplete || '').toLowerCase()) != -1
 	}, year ? {'year': year} : {});
 
