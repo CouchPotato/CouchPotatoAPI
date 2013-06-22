@@ -1,4 +1,6 @@
 var settings = global.settings.moviedb,
+	redis = require('redis'),
+	rclient = redis.createClient(),
 	moviedb = require('moviedb')(settings.apikey),
 	log = global.createLogger(__filename);
 
@@ -46,6 +48,10 @@ exports.info = function(id, callback){
 		// Return
 		callback(null, movie_data);
 
+		// Cache TMDB -> IMDB id
+		if(r.imdb_id)
+			rclient.set('translate_tmdb:' + r.id, r.imdb_id);
+
 	});
 
 }
@@ -87,20 +93,58 @@ exports.search = function(options, callback){
 
 				// Next result
 				var r = rs.results[nr];
-				if(!options.autocomplete)
-					api.getMovieInfo(r.id, parse_next_result);
-				else
-					parse_next_result(r, true);
+				api.getMovieInfo(r.id, parse_next_result);
 
 			}
 
 		}
 
-		if(!options.autocomplete)
-			api.getMovieInfo(rs.results[nr].id, parse_next_result);
-		else
-			parse_next_result(rs.results[nr], true);
+		api.getMovieInfo(rs.results[nr].id, parse_next_result);
 
 	});
+
+}
+
+exports.toIMDB = function(id, callback){
+
+	var hash = 'translate_tmdb:' + id;
+
+	rclient.get(hash, function(err, result){
+
+		// Log errors
+		if(err){
+			log.error(err);
+			callback(null);
+			return;
+		}
+
+		if(result){
+			callback(result);
+		}
+		else {
+
+			// Go do a search
+			moviedb.movieInfo({'id': id}, function(err, r){
+
+				// Log errors
+				if(!r || err){
+					if(!(err + '').indexOf('not found'))
+						log.error(err);
+					callback(null);
+					return;
+				}
+
+				// Return
+				callback(r.imdb_id);
+
+				// Cache
+				if(r.imdb_id)
+					rclient.set(hash, r.imdb_id);
+
+			});
+
+		}
+
+	})
 
 }
