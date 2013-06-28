@@ -10,20 +10,23 @@ exports.map = function(req, res){
 	var ip = req.ip,
 		geo_hash = 'geo_cache:' + ip;
 
+	var send = function(data){
+		fs.readFile('./views/map.html', 'utf8', function(err, html){
+			// Do requests
+			html = html.replace('{{map_data}}', JSON.stringify(data));
+			res.send(html);
+		});
+	}
+
 	rclient.get(geo_hash, function(err, result){
 		if(result){
-			rclient.publish('location', result);
+			send(result);
 		}
 		else {
 			city.lookup(ip, function(err, data) {
-				if (!data)
-					data = {};
-
-				fs.readFile('./views/map.html', 'utf8', function(err, html){
-					// Do requests
-					html = html.replace('{{map_data}}', JSON.stringify(data));
-					res.send(html);
-				});
+				var lat_long = data ? [data.latitude, data.longitude].join(',') : null;
+				rclient.set(geo_hash, lat_long);
+				send(lat_long);
 			});
 		}
 	});
