@@ -111,6 +111,17 @@ app.use(function(err, req, res, next){
 });
 
 // Socket.io stuff
+io.configure(function(){
+	io.enable('browser client minification');
+	io.enable('browser client gzip'); // gzip the file
+
+	var RedisStore = require('socket.io/lib/stores/redis');
+	io.set('store', new RedisStore({
+		'redisPub': redis.createClient(),
+		'redisSub': redis.createClient(),
+		'redisClient': redis.createClient()
+	}));
+});
 var rclient = redis.createClient();
 	rclient.subscribe('location');
 io.sockets.on('connection', function(socket) {
