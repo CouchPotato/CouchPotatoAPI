@@ -19,15 +19,96 @@
 		</style>
 		<script src="/javascript/jquery-1.8.2.js"></script>
 		<script src="/javascript/socket.io.min.js"></script>
+		<script src="/javascript/tile5.cloudmade.js"></script>
 		<script>
 			var map_data = {{map_data}};
 
 			$(function() {
+
+				var storeIndex = 0,
+					hslaFormatter = T5.formatter('hsla({0}, {1}%, {2}%, {3})');
+
+				function createGlowMarker(size, stopFn) {
+					var marker = document.createElement('canvas');
+					stopPoints = [0, 0.1, 1];
+
+					marker.width = marker.height = size;
+
+					var context = marker.getContext('2d'),
+						halfSize = size / 2,
+						radGrad = context.createRadialGradient(halfSize, halfSize, 0, halfSize, halfSize, halfSize);
+
+					for(var ii = 0; ii < stopPoints.length; ii++) {
+						var stopVal = stopPoints[ii], alpha = 0.4 - (0.4 * Math.sqrt(stopVal));
+
+						radGrad.addColorStop(stopVal, stopFn(stopVal, alpha));
+					}
+
+					context.beginPath();
+					context.arc(halfSize, halfSize, halfSize, 0, Math.PI * 2, false);
+					context.fillStyle = radGrad;
+					context.fill();
+
+					return marker;
+				}
+
+				function pinStore(store) {
+					var storePos = new GeoJS.Pos(store.latitude, store.longitude),
+						marker = map.layer('markers').create('marker', {
+							xy: new T5.GeoXY(storePos),
+							markerType: 'image',
+							image: glowMarker,
+							name: store.name,
+							opening_date: store.opening_date,
+							size: 20
+						});
+
+					marker.scale(2, {
+						easing: 'back.out',
+						duration: 300,
+						complete: function() {
+							marker.scale(1, {
+								easing: 'sine.out',
+								duration: 300
+							}, true);
+						}
+					});
+				}
+
+				var glowMarker = createGlowMarker(8, function(stopVal, alpha) {
+					var hue = ~~(150 + 70 * stopVal), saturation = 80 + ~~((1 - stopVal / 1) * 20), lightness = 50;
+
+					return hslaFormatter(hue, saturation, lightness, alpha);
+				});
+
+				var inactiveMarker = createGlowMarker(8, function(stopVal, alpha) {
+					var hue = ~~(50 + 20 * stopVal), saturation = 60 + ~~((1 - stopVal / 1) * 20), lightness = 50;
+
+					return hslaFormatter(hue, saturation, lightness, alpha);
+				});
+
+				map = new T5.Map('map');
+
+				map.layer('tiles', 'tile', {
+					generator: 'osm.cloudmade',
+					// demo api key, register for an API key at http://dev.cloudmade.com/
+					styleid: 999,
+					apikey: '7960daaf55f84bfdb166014d0b9f8d41'
+				});
+
+				map.center('52 5').zoom(2);
+
 				var socket = io.connect();
 
 				// Listen for get-feelings event.
-				socket.on('location', function() {
-					console.log(arguments);
+				socket.on('location', function(lat_long) {
+					var split = lat_long.split(',');
+
+					pinStore({
+						'latitude': parseFloat(split[0]),
+						'longitude': parseFloat(split[1])
+					});
+
 				});
 
 			});
