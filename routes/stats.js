@@ -1,10 +1,37 @@
 var fs = require('fs'),
 	redis = require('redis'),
 	rclient = redis.createClient(),
-	log = global.createLogger(__filename);;
+	log = global.createLogger(__filename),
+	geoip = require('geoip'),
+	city = new geoip.City('data/GeoLiteCity.dat');
+
+exports.map = function(req, res){
+
+	var ip = req.ip,
+		geo_hash = 'geo_cache:' + ip;
+
+	rclient.get(geo_hash, function(err, result){
+		if(result){
+			rclient.publish('location', result);
+		}
+		else {
+			city.lookup(ip, function(err, data) {
+				if (!data)
+					data = {};
+
+				fs.readFile('./views/map.html', 'utf8', function(err, html){
+					// Do requests
+					html = html.replace('{{map_data}}', JSON.stringify(data));
+					res.send(html);
+				});
+			});
+		}
+	});
+
+}
 
 /**
- * GET home page.
+ * GET stats page.
  */
 exports.show = function(req, res) {
 

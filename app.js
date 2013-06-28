@@ -99,6 +99,7 @@ app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, restrict, messages.list);
 app.get('/updater/', stats, updater.url);
 app.get('/stats/', rstats.show);
+app.get('/stats/map/', rstats.map);
 app.get('*', function(req, res){
 	res.status(404).send('Not found');
 });

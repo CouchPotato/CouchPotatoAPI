@@ -59,7 +59,7 @@ exports.stats = function(req, res, next) {
 	multi.exec();
 
 	// Send out location for map stats
-	var ip = req.ip;
+	var ip = req.ip,
 		geo_hash = 'geo_cache:' + ip;
 
 	rclient.get(geo_hash, function(err, result){
@@ -75,6 +75,6 @@ exports.stats = function(req, res, next) {
 				}
 			});
 		}
-	})
+	});
 
 }
