@@ -11,6 +11,7 @@ global.api = require('./libs/api');
 
 // Import modules
 var express = require('express'),
+	redis = require('redis'),
 
 	// Routes
 	home = require('./routes'),
@@ -33,10 +34,12 @@ var express = require('express'),
 	// Logging
 	winston = require('winston');
 
-var app = express();
-	app.disable('x-powered-by');
+var app = express(),
+	server = http.createServer(app),
+	io = require('socket.io').listen(server);
 
 // Reset some stuff first
+app.disable('x-powered-by');
 app.use(function(req, res, next){
 	// Replace header
 	res.setHeader('X-Powered-By', 'CouchPotato ('+app.get('port')+')');
@@ -106,7 +109,25 @@ app.use(function(err, req, res, next){
 	res.status(500).send('Something isn\'t right.. abort abort!');
 });
 
-httpServer = http.createServer(app).listen(app.get('port'), function() {
+// Socket.io stuff
+var rclient = redis.createClient();
+	rclient.subscribe('location');
+io.sockets.on('connection', function(socket) {
+
+	var on_message = function(channel, message){
+		console.log('Send to socket: '+ message);
+		socket.emit('location', message);
+	};
+	rclient.on('message', on_message);
+
+	socket.on('disconnect', function(){
+        rclient.removeListener('message', on_message)
+    });
+
+});
+
+// Start server
+httpServer = server.listen(app.get('port'), function() {
 	log.info('Express server listening on port ' + app.get('port'));
 });
 
