@@ -264,7 +264,7 @@ exports.getMovieEta = function(id, callback){
 					// Pick lowest date
 					['dvd', 'theater', 'expires'].forEach(function(key){
 						if(!release_dates[key] || (dates[key] && dates[key] < release_dates[key]))
-							release_dates[key] = dates[key];
+							release_dates[key] = dates[key] ? dates[key] : 0;
 					});
 
 					// Overwrite bluray
