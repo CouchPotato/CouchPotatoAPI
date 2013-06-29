@@ -60,7 +60,7 @@
 							image: glowMarker,
 							name: store.name,
 							opening_date: store.opening_date,
-							size: 20
+							size: 6
 						});
 
 					marker.scale(2, {
@@ -87,13 +87,15 @@
 					return hslaFormatter(hue, saturation, lightness, alpha);
 				});
 
-				map = new T5.Map('map');
+				map = new T5.Map('map', {
+					'renderer': 'canvas'
+				});
 
 				map.layer('tiles', 'tile', {
 					generator: 'osm.cloudmade',
-					// demo api key, register for an API key at http://dev.cloudmade.com/
-					styleid: 999,
-					apikey: '7960daaf55f84bfdb166014d0b9f8d41'
+			        // demo api key, register for an API key at http://dev.cloudmade.com/
+			        apikey: '43488a75a95b45aaa7d5453556bca19f',
+			        styleid: 100978
 				});
 
 				map.center('52 5').zoom(2);

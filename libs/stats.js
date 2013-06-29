@@ -69,7 +69,7 @@ exports.stats = function(req, res, next) {
 		else {
 			city.lookup(ip, function(err, data) {
 				if (data) {
-					var lat_long = [data.latitude, data.longitude].join(',')
+					var lat_long = [data.latitude, data.longitude].join(',');
 					rclient.publish('location', lat_long);
 					rclient.set(geo_hash, lat_long);
 				}
