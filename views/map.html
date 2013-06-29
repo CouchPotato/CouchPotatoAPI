@@ -73,10 +73,10 @@
 							xy: new T5.GeoXY(storePos),
 							markerType: 'image',
 							image: glowMarker,
-							size: 10
+							size: 3
 						});
 
-					marker.scale(4, {
+					marker.scale(10, {
 						easing: 'back.out',
 						duration: 300,
 						complete: function() {
@@ -100,7 +100,7 @@
 					'zoombar': {}
 				});
 
-				map.center('52 5').zoom(2);
+				map.center('32 8').zoom(3);
 
 
     			var world_layer = map.layer('world', 'draw', {
