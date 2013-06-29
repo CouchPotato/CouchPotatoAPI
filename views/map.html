@@ -20,7 +20,7 @@
 		</style>
 		<script src="/javascript/jquery-1.8.2.js"></script>
 		<script src="/javascript/socket.io.min.js"></script>
-		<script src="/javascript/tile5.js"></script>
+		<script src="/javascript/tile5.min.js"></script>
 		<script src="/javascript/parser.geojson.js"></script>
 		<script src="/javascript/world.js"></script>
 		<script>
@@ -32,12 +32,6 @@
 			       lineWidth: 0.2,
 			       stroke: '#000000',
 			       fill: '#03406f'
-			    },
-
-			    'area.highlight': {
-			       lineWidth: 0.2,
-			       stroke: '#000000',
-			       fill: '#07538e'
 			    }
 
 			});
@@ -45,9 +39,7 @@
 
 			$(function() {
 
-				var storeIndex = 0,
-					parser = new T5.GeoJSONParser({ generalizer: GeoJS.generalize }),
-       				worldLayer,
+				var parser = new T5.GeoJSONParser({ generalizer: GeoJS.generalize }),
 					hslaFormatter = T5.formatter('hsla({0}, {1}%, {2}%, {3})');
 
 				function createGlowMarker(size, stopFn) {
@@ -61,7 +53,8 @@
 						radGrad = context.createRadialGradient(halfSize, halfSize, 0, halfSize, halfSize, halfSize);
 
 					for(var ii = 0; ii < stopPoints.length; ii++) {
-						var stopVal = stopPoints[ii], alpha = 0.4 - (0.4 * Math.sqrt(stopVal));
+						var stopVal = stopPoints[ii],
+							alpha = 0.4 - (0.4 * Math.sqrt(stopVal));
 
 						radGrad.addColorStop(stopVal, stopFn(stopVal, alpha));
 					}
@@ -80,12 +73,10 @@
 							xy: new T5.GeoXY(storePos),
 							markerType: 'image',
 							image: glowMarker,
-							name: store.name,
-							opening_date: store.opening_date,
-							size: 6
+							size: 10
 						});
 
-					marker.scale(2, {
+					marker.scale(4, {
 						easing: 'back.out',
 						duration: 300,
 						complete: function() {
@@ -103,23 +94,21 @@
 					return hslaFormatter(hue, saturation, lightness, alpha);
 				});
 
-				var inactiveMarker = createGlowMarker(8, function(stopVal, alpha) {
-					var hue = ~~(50 + 20 * stopVal), saturation = 60 + ~~((1 - stopVal / 1) * 20), lightness = 50;
-
-					return hslaFormatter(hue, saturation, lightness, alpha);
-				});
-
 				map = new T5.Map('map', {
-					'renderer': 'canvas'
+					'renderer': 'canvas',
+					'controls': false,
+					'zoombar': {}
 				});
 
 				map.center('52 5').zoom(2);
 
-    			worldLayer = map.layer('world', 'draw');
-			    worldLayer.hoverStyle = 'area.highlight';
+
+    			var world_layer = map.layer('world', 'draw', {
+    				maxZoom: 1
+    			});
 
 			    parser.bind('poly', function(evt, data) {
-			        var item = worldLayer.create('poly', data);
+			        var item = world_layer.create('poly', data);
 			        item.style = 'area.simple';
 			    });
 
