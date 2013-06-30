@@ -64,7 +64,7 @@ exports.eta = function(imdb, callback){
 
 			api.getMovieInfo(imdb, function(movie_info){
 
-				var search_url = 'http://www.google.com/cse?cx=partner-pub-9136844266644239%3A4586776767&sa=Search&num=1&nojs=1&q='+encodeURIComponent(movie_info.original_title)+'+%28'+movie_info.year+'%29';
+				var search_url = 'http://www.google.com/cse?cx=partner-pub-9136844266644239%3A4586776767&sa=Search&num=1&nojs=1&q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29';
 
 				api.request({
 					'timeout': settings.timeout || 3000,
