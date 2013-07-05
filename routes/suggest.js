@@ -14,6 +14,10 @@ exports.imdbs = function(req, res) {
 		union = ['out'],
 		rem = ['out'];
 
+	// Suggest for first time users
+	if(imdbs_suggest.length == 1 && !imdbs_suggest[0])
+		imdbs_suggest = [settings.suggested_movies[Math.floor(Math.random() * settings.suggested_movies.length)]]
+
 	// Suggestions for
 	union.push(imdbs_suggest.length);
 	imdbs_suggest.forEach(function(suggest){
