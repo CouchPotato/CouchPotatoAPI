@@ -59,15 +59,14 @@ exports.stats = function(req, res, next) {
 	multi.exec();
 
 	// Send out location for map stats
-	var ip = req.ip,
-		geo_hash = 'geo_cache:' + ip;
+	var geo_hash = 'geo_cache:' + md5(user + req.ip);
 
 	rclient.get(geo_hash, function(err, result){
 		if(result){
 			rclient.publish('location', result);
 		}
 		else {
-			city.lookup(ip, function(err, data) {
+			city.lookup(req.ip, function(err, data) {
 				if (data) {
 					var lat_long = [data.latitude, data.longitude].join(',');
 					rclient.publish('location', lat_long);
