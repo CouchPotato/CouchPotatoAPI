@@ -11,6 +11,7 @@ global.api = require('./libs/api');
 
 // Import modules
 var express = require('express'),
+	redis = require('redis'),
 
 	// Routes
 	home = require('./routes'),
@@ -33,10 +34,12 @@ var express = require('express'),
 	// Logging
 	winston = require('winston');
 
-var app = express();
-	app.disable('x-powered-by');
+var app = express(),
+	server = http.createServer(app),
+	io = require('socket.io').listen(server);
 
 // Reset some stuff first
+app.disable('x-powered-by');
 app.use(function(req, res, next){
 	// Replace header
 	res.setHeader('X-Powered-By', 'CouchPotato ('+app.get('port')+')');
@@ -96,6 +99,7 @@ app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, restrict, messages.list);
 app.get('/updater/', stats, updater.url);
 app.get('/stats/', rstats.show);
+app.get('/stats/map/', rstats.map);
 app.get('*', function(req, res){
 	res.status(404).send('Not found');
 });
@@ -106,28 +110,61 @@ app.use(function(err, req, res, next){
 	res.status(500).send('Something isn\'t right.. abort abort!');
 });
 
-httpServer = http.createServer(app).listen(app.get('port'), function() {
+// Socket.io stuff
+io.configure(function(){
+	io.enable('browser client minification');
+	io.enable('browser client gzip'); // gzip the file
+
+	var RedisStore = require('socket.io/lib/stores/redis');
+	io.set('store', new RedisStore({
+		'redisPub': redis.createClient(),
+		'redisSub': redis.createClient(),
+		'redisClient': redis.createClient()
+	}));
+});
+var rclient = redis.createClient();
+	rclient.subscribe('location');
+io.sockets.on('connection', function(socket) {
+
+	var on_message = function(channel, message){
+		console.log('Send to socket: '+ message);
+		socket.emit('location', message);
+	};
+	rclient.on('message', on_message);
+
+	socket.on('disconnect', function(){
+        rclient.removeListener('message', on_message)
+    });
+
+});
+
+// Start server
+httpServer = server.listen(app.get('port'), function() {
 	log.info('Express server listening on port ' + app.get('port'));
 });
 
-// Graceful shutdown
-process.on('SIGTERM', function() {
-	log.info('Received kill signal (SIGTERM), shutting down gracefully.');
+var graceful = function() {
 	shutting_down = true;
 
 	httpServer.close(function() {
-		log.info('Closed out remaining connections.');
+		winston.info('Closed out remaining connections.');
 		return process.exit();
 	});
 
 	return setTimeout(function() {
-		log.error('Could not close connections in time, forcefully shutting down');
+		winston.error('Could not close connections in time, forcefully shutting down');
 		return process.exit(1);
 	}, 30 * 1000);
+}
+
+// Graceful shutdown
+process.on('SIGTERM', function(){
+	winston.info('Received kill signal (SIGTERM), shutting down gracefully.');
+	graceful();
 });
 
 // Try to log exceptions
 process.on('uncaughtException', function (err) {
 	winston.error(err.stack);
-	process.exit(1);
+	graceful();
 })

@@ -6,17 +6,24 @@ module.exports = {
 		'mdb': {
 			'eta_url': '',
 			'ismovie_url': '',
+			'timout': 10000
 		},
 		'rotten': {
-			'apikey': ''
+			'apikey': '',
+			'timout': 10000
 		},
 		'mi': {
-			'url': ''
-		}
+			'url': '',
+			'timout': 10000
+		},
+		'veta': {
+			'url': '',
+			'timout': 10000
+		},
+		'whitelisted_ips': ['::1', '127.0.0.1'],
+		'suggested_movies': []
 	},
 
 	development: {},
-	production: {
-		'tmdb': ''
-	}
+	production: {}
 }; 

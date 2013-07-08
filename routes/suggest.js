@@ -14,6 +14,10 @@ exports.imdbs = function(req, res) {
 		union = ['out'],
 		rem = ['out'];
 
+	// Suggest for first time users
+	if(imdbs_suggest.length == 1 && !imdbs_suggest[0])
+		imdbs_suggest = [settings.suggested_movies[Math.floor(Math.random() * settings.suggested_movies.length)]]
+
 	// Suggestions for
 	union.push(imdbs_suggest.length);
 	imdbs_suggest.forEach(function(suggest){
@@ -113,7 +117,7 @@ exports.cron = function(req, res){
 
 						// Limit them with score of 20 and up, or 500 per set
 						var multi = rclient.multi();
-							multi.zremrangebyscore(rename_to, '-inf', '(20');
+							multi.zremrangebyscore(rename_to, '-inf', '(100');
 							multi.zremrangebyrank(rename_to, 0, -499);
 							multi.exec()
 					});

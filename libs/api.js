@@ -1,6 +1,7 @@
 var async = require('async'),
 	request = require('request'),
 	providers = require('./providers'),
+	toIMDB = require('./providers/tmdb').toIMDB,
 	redis = require('redis'),
 	rclient = redis.createClient(),
 	log = global.createLogger(__filename);
@@ -8,7 +9,7 @@ var async = require('async'),
 // Some logging around request
 exports.request = function(options, callback){
 	if(settings.ENV == 'development')
-		console.log('Opening url:' + (options instanceof Object ? options.url : options));
+		log.info('Opening url:' + (options instanceof Object ? options.url : options));
 
 	return request(options, callback);
 }
@@ -63,7 +64,6 @@ exports.isMovie = function(imdb, callback){
 
 	});
 
-
 }
 
 exports.getMovieInfo = function(id, callback){
@@ -87,19 +87,45 @@ exports.getMovieInfo = function(id, callback){
 		// Go through all providers and save data
 		else {
 
-			async.parallel(providers.info(id), function(err, results) {
+			async.waterfall([
+				function(next_callback){
+					if((id + '').substring(0, 2) != 'tt'){
 
-				// Log errors
-				if(err){
-					log.error(err);
-					callback({});
-					return;
+						toIMDB(id, function(result){
+							if(result)
+								next_callback(null, result);
+							else
+								next_callback(null, id);
+						});
+
+					}
+					else {
+						next_callback(null, id);
+					}
+
+				},
+				function(imdb_id, next_callback){
+
+					async.parallel(providers.info(imdb_id || id), function(err, results) {
+
+						// Log errors
+						if(err){
+							log.error(err);
+							next_callback(null, {});
+							return;
+						}
+
+						var movie_info = {};
+						results.forEach(function(result){
+							movie_info = merge(movie_info, result);
+						});
+
+						next_callback(null, movie_info);
+
+					});
+
 				}
-
-				var movie_info = {};
-				results.forEach(function(result){
-					movie_info = merge(movie_info, result);
-				});
+			], function(err, movie_info){
 
 				// Cache
 				rclient.setex(hash, 86400, JSON.stringify(movie_info));
@@ -238,7 +264,7 @@ exports.getMovieEta = function(id, callback){
 					// Pick lowest date
 					['dvd', 'theater', 'expires'].forEach(function(key){
 						if(!release_dates[key] || (dates[key] && dates[key] < release_dates[key]))
-							release_dates[key] = dates[key];
+							release_dates[key] = dates[key] ? dates[key] : 0;
 					});
 
 					// Overwrite bluray
