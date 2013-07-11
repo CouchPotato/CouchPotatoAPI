@@ -79,17 +79,24 @@ exports.eta = function(imdb, callback){
 						return;
 					}
 
-					var match = (body || '').match(/videoeta.com\/movie\/(\d+)/);
-					if(match && match.length > 0 && match[1])
-						detail_url = settings.url + '/movie/'+match[1]+'/'+(movie_info.original_title.replace(/\W/g, '-').toLowerCase())+'/';
+					var detail_url;
+					try {
+						var match = (body || '').match(/videoeta.com\/movie\/(\d+)/);
+						if(match && match.length > 0 && match[1])
+							detail_url = settings.url + '/movie/'+match[1]+'/'+(movie_info.original_title.replace(/\W/g, '-').toLowerCase())+'/';
 
-					if(detail_url){
-						get_details(detail_url);
+						if(detail_url){
+							get_details(detail_url);
 
-						// Cache
-						rclient.set(veta_hash, detail_url);
+							// Cache
+							rclient.set(veta_hash, detail_url);
+						}
+						else {
+							callback();
+						}
 					}
-					else {
+					catch (e){
+						log.error('Failed VETA: ' + imdb)
 						callback();
 					}
 				});
