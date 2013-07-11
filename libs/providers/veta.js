@@ -65,6 +65,11 @@ exports.eta = function(imdb, callback){
 
 			api.getMovieInfo(imdb, function(movie_info){
 
+				if(!movie_info){
+					callback();
+					return;
+				}
+
 				var search_url = 'https://www.google.nl/search?q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29+site%3Ahttp%3A%2F%2Fvideoeta.com%2Fmovie%2F+-old.videoeta.com+-beta.videoeta.com';
 
 				api.request({
@@ -79,24 +84,18 @@ exports.eta = function(imdb, callback){
 						return;
 					}
 
-					var detail_url;
-					try {
-						var match = (body || '').match(/videoeta.com\/movie\/(\d+)/);
-						if(match && match.length > 0 && match[1])
-							detail_url = settings.url + '/movie/'+match[1]+'/'+(movie_info.original_title.replace(/\W/g, '-').toLowerCase())+'/';
+					var match = (body || '').match(/videoeta.com\/movie\/(\d+)/),
+						detail_url;
+					if(match && match.length > 0 && match[1])
+						detail_url = settings.url + '/movie/'+match[1]+'/'+((movie_info.original_title || 'a').replace(/\W/g, '-').toLowerCase())+'/';
 
-						if(detail_url){
-							get_details(detail_url);
+					if(detail_url){
+						get_details(detail_url);
 
-							// Cache
-							rclient.set(veta_hash, detail_url);
-						}
-						else {
-							callback();
-						}
+						// Cache
+						rclient.set(veta_hash, detail_url);
 					}
-					catch (e){
-						log.error('Failed VETA: ' + imdb)
+					else {
 						callback();
 					}
 				});
