@@ -59,6 +59,7 @@ exports.info = function(imdb, callback){
 			},
 			'plot': movie.Plot,
 			'imdb': movie.imdbID,
+			'mpaa': movie.Rating,
 			'genres': cleanupList(movie.Genre),
 			'directors': cleanupList(movie.Director),
 			'writers': cleanupList(movie.Writer),
