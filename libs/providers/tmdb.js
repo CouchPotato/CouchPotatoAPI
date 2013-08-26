@@ -75,7 +75,7 @@ exports.search = function(options, callback){
 			results = [];
 
 		// Return empty results
-		if(rs.results.length == 0){
+		if(!rs.results || rs.results.length == 0 || (rs.results.length > 0 && !rs.results[nr])){
 			callback(null, results);
 			return;
 		}
@@ -87,7 +87,7 @@ exports.search = function(options, callback){
 				results.push(info);
 
 			// Return and search only first 3 with imdb_id
-			if(results.length >= options.limit || rs.results.length <= nr)
+			if(results.length >= options.limit || rs.results.length <= nr || !rs.results[nr])
 				callback(null, results);
 			else {
 
