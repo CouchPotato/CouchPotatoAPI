@@ -74,8 +74,10 @@ exports.cron = function(req, res){
 		res.redirect('/');
 		return;
 	}
+	
+	var keeper_key = 'suggest_cron';
 
-	rclient.get('suggest_cron', function(err, status){
+	rclient.get(keeper_key, function(err, status){
 
 		// Already running
 		if(status){
@@ -97,7 +99,7 @@ exports.cron = function(req, res){
 				now = Math.round(date.getTime() / 1000),
 				results,
 				total,
-				per_process = 100;
+				per_process = 20;
 
 			var doRename = function(){
 
@@ -128,7 +130,7 @@ exports.cron = function(req, res){
 						var multi = rclient.multi();
 							multi.del(result);
 							multi.zremrangebyscore('suggestions', '-inf', '('+now);
-							multi.del('suggest_cron');
+							multi.del(keeper_key);
 							multi.exec();
 
 					})
@@ -140,7 +142,7 @@ exports.cron = function(req, res){
 			var goWork = function(i){
 
 				var users = results.splice(0, per_process);
-				rclient.set('suggest_cron', Math.round((results.length / total)*10000)/100 + '%');
+				rclient.set(keeper_key, Math.round((results.length / total)*10000)/100 + '%');
 
 				// Send users to process to the worker
 				if(users)
