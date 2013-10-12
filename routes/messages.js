@@ -15,7 +15,7 @@ exports.list = function(req, res) {
 			'id': 3,
 			'time': strtotime('2013-10-12 20:00'),
 			'important': true,
-			'message': 'New donation options are available on <a href="https://couchpota.to/#support" target="_blank">couchpota.to</a>. Just saying ;)',
+			'message': 'New donation options are available on <a href="https://couchpota.to/support/" target="_blank">couchpota.to</a>. Just saying ;)',
 		},
 	]);
 
