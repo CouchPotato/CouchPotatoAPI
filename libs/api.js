@@ -146,7 +146,7 @@ exports.searchMovie = function(options, callback){
 	options.limit = options.limit || 3;
 	options.autocomplete = options.autocomplete || false
 
-	var hash = 'search:' + options.query + '.' + options.limit + '.' + (options.autocomplete ? 'ac' : 'f');
+	var hash = 'search:' + options.query + '.' + (options.year || '') + '.' + options.limit + '.' + (options.autocomplete ? 'ac' : 'f');
 
 	// Get from Redis
 	rclient.get(hash, function(err, result){

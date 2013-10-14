@@ -3,7 +3,7 @@
  */
 exports.query = function(req, res) {
 
-	var query = trim(req.params.query).replace('+', ' ');
+	var query = trim(req.params.query).replace(/\+/g, ' ');
 
 	// Get year
 	if(query.length > 6){
