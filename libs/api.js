@@ -115,7 +115,9 @@ exports.getMovieInfo = function(id, callback){
 							return;
 						}
 
-						var movie_info = {};
+						var movie_info = {
+							'type': 'movie'
+						};
 						results.forEach(function(result){
 							movie_info = merge(movie_info, result);
 						});
