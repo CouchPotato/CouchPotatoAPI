@@ -5,7 +5,17 @@ var settings = global.settings.moviedb,
 	log = global.createLogger(__filename);
 
 // TMDB image base url
-var img_url = 'https://d3gtl9l2a4fn1j.cloudfront.net/t/p/';
+var config = null,
+	img_url = 'https://d3gtl9l2a4fn1j.cloudfront.net/t/p/';
+
+moviedb.configuration(function(error, c){
+	config = c;
+	
+	try {
+		img_url = c.images.secure_base_url;
+	}
+	catch(e){};
+});
 
 exports.info = function(id, callback){
 
