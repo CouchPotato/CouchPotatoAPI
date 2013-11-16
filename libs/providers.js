@@ -1,5 +1,5 @@
-var providers = ['omdb', 'mdb', 'tmdb', 'rotten', 'mi', 'veta'],
-	apis_calls = ['eta', 'info', 'search', 'ismovie'],
+var providers = ['omdb', 'mdb', 'tmdb', 'rotten', 'mi', 'veta', 'orlydb'],
+	apis_calls = ['eta', 'info', 'search', 'ismovie', 'validate'],
 	apis = {};
 
 // Loop over providers and merge the calls

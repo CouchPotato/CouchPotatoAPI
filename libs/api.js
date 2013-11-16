@@ -14,6 +14,59 @@ exports.request = function(options, callback){
 	return request(options, callback);
 }
 
+exports.isValid = function(name, callback){
+
+	var hash = 'isvalid:' + name;
+
+	// Get from Redis
+	rclient.get(hash, function(err, result){
+
+		var is_valid = {
+			'reasons': [],
+			'score': 0
+		};
+
+		// Log errors
+		if(err){
+			log.error(err);
+			callback(is_valid);
+			return;
+		}
+
+		// Return if exists
+		if(result){
+			callback(JSON.parse(result));
+		}
+		// Go through provider
+		else {
+			async.parallel(providers.validate(name), function(err, results) {
+
+				// Log errors
+				if(err){
+					log.error(err);
+					callback(is_valid);
+					return;
+				}
+
+				results.forEach(function(result){
+					is_valid.reasons = is_valid.reasons.concat(result.reasons);
+					is_valid.score += result.score;
+				});
+
+				// Cache
+				rclient.setex(hash, 86400, JSON.stringify(is_valid));
+
+				// Send back
+				callback(is_valid);
+
+			});
+
+		}
+
+	});
+
+}
+
 exports.isMovie = function(imdb, callback){
 
 	var hash = 'ismovie:' + imdb;
