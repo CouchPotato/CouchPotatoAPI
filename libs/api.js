@@ -331,7 +331,7 @@ exports.getMovieEta = function(id, callback){
 				if((release_dates.dvd && release_dates.dvd < (now-(604800*2)) && release_dates.theater && release_dates.theater < now)
 					|| release_dates.theater < (now-(31449600*4))
 				)
-					release_dates['expires'] = now+(604800*52);
+					release_dates['expires'] = now+(604800*3); // 3 weeks
 
 				// Force expire if not exists, 3 days
 				if(!release_dates.expires)
