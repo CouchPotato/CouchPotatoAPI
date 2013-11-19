@@ -74,7 +74,7 @@ exports.cron = function(req, res){
 		res.redirect('/');
 		return;
 	}
-	
+
 	var keeper_key = 'suggest_cron';
 
 	rclient.get(keeper_key, function(err, status){
@@ -99,7 +99,7 @@ exports.cron = function(req, res){
 				now = Math.round(date.getTime() / 1000),
 				results,
 				total,
-				per_process = 20;
+				per_process = 100;
 
 			var doRename = function(){
 
