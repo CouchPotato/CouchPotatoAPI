@@ -145,72 +145,39 @@ exports.cron = function(req, res){
 				rclient.set(keeper_key, Math.round((results.length / total)*10000)/100 + '%');
 
 				// Send users to process to the worker
-				if(users.length == 0){
-					doRename();
-				}
-				else {
+				if(users)
+					workers[i].send(users);
 
-					var range = [],
-						total_users = users.length,
-						users_done = 0;
+			}
 
-					users.forEach(function(user){
-						range.push(['zrevrange', 'usermovies:' + user, 0, 100]); // Get last 100 movies from the user
-					});
+			var receiveMessage = function(i){
 
-					var is_done = function(){
-						users_done++;
+				// Send new users when one exits
+				workers[i].on('message', function(message){
 
-						//process.send({'type': 'message', 'message': users_done + '/' + total_users});
-						if(users_done == total_users){
-							goWork();
+					if(message.type == 'done'){
+						if(results.length > 0){
+							goWork(i);
+						}
+						else {
+
+							workers[i].kill();
+							workers[i] = undefined;
+
+							var active_workers = 0;
+							for(var nr = 0; nr < cpus; nr++) {
+								if(workers[nr])
+									active_workers++;
+							}
+
+							// Workers are done, go process results
+							if(active_workers == 0)
+								doRename();
+
 						}
 					}
 
-					rclient.multi(range)
-						.exec(function(err, result){
-
-							if(err) return;
-
-							var inc = [],
-								total_movies = 0,
-								total_processed = 0;
-
-							result.forEach(function(user_movies){
-
-								var total_combinations = 0;
-
-								// Total combinations
-								var length = user_movies.length;
-								for(var i = length; i > 0; i--)
-									total_combinations += i;
-								total_combinations -= length;
-
-								if(total_combinations <= 0){
-									is_done();
-								}
-								else {
-
-									user_movies.sort();
-									user_movies.forEach(function(movie, nr){
-
-										user_movies.slice(nr).forEach(function(next_movie){
-											if(movie != next_movie)
-												rclient.zincrby('suggest_temp:' + movie, 1, next_movie, function(){
-													total_processed++;
-
-													if(total_processed >= total_combinations)
-														is_done();
-												});
-										});
-
-									});
-								}
-
-							});
-
-						});
-				}
+				});
 
 			}
 
@@ -220,7 +187,13 @@ exports.cron = function(req, res){
 				results = result;
 				total = result.length;
 
-				goWork();
+				// Spawn workers
+				for(var nr = 0; nr < cpus; nr++) {
+					workers[nr] = fork(__dirname+'/../libs/suggest_worker.js');
+
+					receiveMessage(nr);
+					goWork(nr);
+				}
 
 				res.type('application/json');
 				res.json({
