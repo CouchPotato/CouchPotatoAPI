@@ -99,7 +99,7 @@ exports.cron = function(req, res){
 				now = Math.round(date.getTime() / 1000),
 				results,
 				total,
-				per_process = 100;
+				per_process = 50;
 
 			var doRename = function(){
 
@@ -116,7 +116,7 @@ exports.cron = function(req, res){
 						multi.rename(suggest_key, rename_to);
 						multi.zadd('suggestions', now, rename_to);
 
-						// Limit them with score of 20 and up, or 500 per set
+						// Limit them with score of 100 and up, or 500 per set
 						multi.zremrangebyscore(rename_to, '-inf', '(100');
 						multi.zremrangebyrank(rename_to, 0, -499);
 
@@ -124,15 +124,17 @@ exports.cron = function(req, res){
 
 					multi.exec(function(){
 
-						// Get older suggestions and remove them
 						rclient.zrangebyscore('suggestions', '-inf', '('+now, function(err, result){
 
+							// Get older suggestions and remove them
 							var multi = rclient.multi();
-								multi.del(result);
 								multi.zremrangebyscore('suggestions', '-inf', '('+now);
 								multi.del(keeper_key);
-								multi.exec();
 
+								if(result && result.length > 0)
+									multi.del(result);
+
+								multi.exec();
 						});
 
 					})
@@ -186,15 +188,20 @@ exports.cron = function(req, res){
 			// Get last months user
 			rclient.zrangebyscore('user-last-request', (now)-2419200, now-10, function(err, result){
 
-				results = result;
-				total = result.length;
+				if(result.length > 0){
+					results = result;
+					total = result.length;
 
-				// Spawn workers
-				for(var nr = 0; nr < cpus; nr++) {
-					workers[nr] = fork(__dirname+'/../libs/suggest_worker.js');
+					// Spawn workers
+					for(var nr = 0; nr < cpus; nr++) {
+						workers[nr] = fork(__dirname+'/../libs/suggest_worker.js');
 
-					receiveMessage(nr);
-					goWork(nr);
+						receiveMessage(nr);
+						goWork(nr);
+					}
+				}
+				else {
+					doRename();
 				}
 
 				res.type('application/json');

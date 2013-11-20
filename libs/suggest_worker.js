@@ -4,71 +4,51 @@ var redis = require('redis'),
 // Wait for users to be received
 process.on('message', function(users) {
 
-	var total_users = users.length,
-		users_done = 0,
-		command_multi = rclient.multi(),
-		range_multi = rclient.multi();
-
+	var range_multi = rclient.multi();
 
 	users.forEach(function(user){
 		range_multi.zrevrange('usermovies:' + user, 0, 100); // Get last 100 movies from the user
 	});
 
-	var is_done = function(){
-		users_done++;
-
-		//process.send({'type': 'message', 'message': users_done + '/' + total_users});
-		if(users_done == total_users){
-
-			command_multi.exec(function(err, result){
-				process.send({'type': 'done'});
-				delete total_users, users_done;
-			});
-		}
-
-	}
-
 	range_multi.exec(function(err, result){
+		if(err) return;
 
-			if(err) return;
+		var inc = [],
+			scores = {};
 
-			var inc = [],
-				total_processed = 0;
+		result.forEach(function(user_movies){
 
-			result.forEach(function(user_movies){
+			user_movies.sort();
+			user_movies.forEach(function(movie, nr){
 
-				var total_combinations = 0;
+				user_movies.slice(nr).forEach(function(next_movie){
+					if(movie != next_movie){
 
-				// Total combinations
-				var length = user_movies.length;
-				for(var i = length; i > 0; i--)
-					total_combinations += i;
-				total_combinations -= length;
+						if(!scores[movie])
+							scores[movie] = {};
+						if(!scores[movie][next_movie])
+							scores[movie][next_movie] = 0;
 
-				if(total_combinations <= 0){
-					is_done();
-				}
-				else {
-
-					user_movies.sort();
-					user_movies.forEach(function(movie, nr){
-
-						user_movies.slice(nr).forEach(function(next_movie){
-							if(movie != next_movie){
-								command_multi.zincrby('suggest_temp:'+movie, 1, next_movie);
-
-								total_processed++;
-								if(total_processed >= total_combinations)
-									is_done();
-
-							}
-						});
-
-					});
-				}
+						scores[movie][next_movie] += 1;
+					}
+				});
 
 			});
 
 		});
+
+		for(var m in scores){
+			for(var m2 in scores[m]){
+				inc.push(['zincrby', 'suggest_temp:'+m, scores[m][m2], m2]);
+			}
+		}
+
+		scores = null;
+
+		rclient.multi(inc).exec(function(err, result){
+			process.send({'type': 'done'});
+		});
+
+	});
 
 });
