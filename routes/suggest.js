@@ -92,7 +92,7 @@ exports.cron = function(req, res){
 		else {
 
 			// Set running
-			rclient.set('suggest_cron', '100%');
+			rclient.set(keeper_key, '100%');
 
 			var workers = [],
 				date = new Date(),
