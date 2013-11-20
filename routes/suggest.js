@@ -114,12 +114,12 @@ exports.cron = function(req, res){
 						var rename_to = suggest_key.replace('suggest_temp:', 'suggest:');
 
 						// Rename them from temp
-							multi.rename(suggest_key, rename_to);
-							multi.zadd('suggestions', now, rename_to);
+						multi.rename(suggest_key, rename_to);
+						multi.zadd('suggestions', now, rename_to);
 
 						// Limit them with score of 20 and up, or 500 per set
-							multi.zremrangebyscore(rename_to, '-inf', '(100');
-							multi.zremrangebyrank(rename_to, 0, -499);
+						multi.zremrangebyscore(rename_to, '-inf', '(100');
+						multi.zremrangebyrank(rename_to, 0, -499);
 					});
 
 					multi.exec()
