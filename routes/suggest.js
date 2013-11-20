@@ -99,7 +99,7 @@ exports.cron = function(req, res){
 				now = Math.round(date.getTime() / 1000),
 				results,
 				total,
-				per_process = 50;
+				per_process = 10;
 
 			var doRename = function(){
 
@@ -116,8 +116,8 @@ exports.cron = function(req, res){
 						multi.rename(suggest_key, rename_to);
 						multi.zadd('suggestions', now, rename_to);
 
-						// Limit them with score of 100 and up, or 500 per set
-						multi.zremrangebyscore(rename_to, '-inf', '(100');
+						// Limit them with score of 40 and up, or 500 per set
+						multi.zremrangebyscore(rename_to, '-inf', '(40');
 						multi.zremrangebyrank(rename_to, 0, -499);
 
 					});
@@ -160,25 +160,44 @@ exports.cron = function(req, res){
 				workers[i].on('message', function(message){
 
 					if(message.type == 'done'){
-						if(results.length > 0){
-							goWork(i);
-						}
-						else {
 
-							workers[i].kill();
-							workers[i] = undefined;
+						var increments = {};
+						message.increments.forEach(function(m){
+							if(!increments[m])
+								increments[m] = 0;
 
-							var active_workers = 0;
-							for(var nr = 0; nr < cpus; nr++) {
-								if(workers[nr])
-									active_workers++;
+							increments[m]++;
+						});
+
+						var multi = rclient.multi();
+						for(var inc in increments){
+							var s = inc.split('-');
+							multi.zincrby('suggest_temp:'+s[0], increments[inc], s[1]);
+						};
+
+						multi.exec(function(err, results){
+
+							if(results.length > 0){
+								goWork(i);
+							}
+							else {
+
+								workers[i].kill();
+								workers[i] = undefined;
+
+								var active_workers = 0;
+								for(var nr = 0; nr < cpus; nr++) {
+									if(workers[nr])
+										active_workers++;
+								}
+
+								// Workers are done, go process results
+								if(active_workers == 0)
+									doRename();
+
 							}
 
-							// Workers are done, go process results
-							if(active_workers == 0)
-								doRename();
-
-						}
+						});
 					}
 
 				});
@@ -186,7 +205,7 @@ exports.cron = function(req, res){
 			}
 
 			// Get last months user
-			rclient.zrangebyscore('user-last-request', (now)-2419200, now-10, function(err, result){
+			rclient.zrangebyscore('user-last-request', (now)-21600, now-10, function(err, result){
 
 				if(result.length > 0){
 					results = result;
