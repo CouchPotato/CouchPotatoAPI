@@ -58,21 +58,25 @@ exports.show = function(req, res) {
 
 	// Do user stats
 	var user_stats = [
-			{'name':'Last hour', 'range': [now-3600, '+inf']},
-			{'name':'Today', 'range': [now-86400, '+inf']},
-			{'name':'Last week', 'range': [now-604800, '+inf']},
-			{'name':'Last month', 'range': [now-2678400, '+inf']},
-			{'name':'Last 3 months', 'range': [now-8035200, '+inf']},
-			{'name':'All time', 'range': ['-inf', '+inf']},
-		]
+		{'name':'Last hour', 'range': [now-3600, '+inf']},
+		{'name':'Today', 'range': [now-86400, '+inf']},
+		{'name':'Last week', 'range': [now-604800, '+inf']},
+		{'name':'Last month', 'range': [now-2678400, '+inf']},
+		{'name':'Last 3 months', 'range': [now-8035200, '+inf']},
+		{'name':'All time', 'range': ['-inf', '+inf']},
+	]
+
+	var stat_multi = rclient.multi();
+
 	user_stats.forEach(function(stat){
-		rclient.zcount(ulr, stat.range[0], stat.range[1], function(err, result){
-			user_results.push({'label': stat.name, 'y': parseInt(result)});
+		stat_multi.zcount(ulr, stat.range[0], stat.range[1]);
+	});
 
-			if(user_results.length == user_stats.length)
-				send_results();
+	stat_multi.exec(function(err, results){
+		results.forEach(function(r, nr){
+			user_results.push({'label': user_stats[nr].name, 'y': parseInt(r)});
 		});
-
+		send_results();
 	});
 
 
@@ -83,17 +87,25 @@ exports.show = function(req, res) {
 		days.push(i);
 	};
 
+	var days_multi = rclient.multi();
+
 	days.forEach(function(nr){
 		var d = new Date();
 			d.setDate(d.getDate() - nr);
 		var day = d.getUTCFullYear() + '-' + (d.getUTCMonth() + 1) + '-' + d.getUTCDate();
 
-		rclient.get('hits-by-day:' + day, function(err, result){
-			request_results.push({'label': day, 'y': parseInt(result)});
+		days_multi.get('hits-by-day:' + day);
+	});
 
-			if(request_results.length == last_x_days)
-				send_results();
+	days_multi.exec(function(err, results){
+		results.forEach(function(r, nr){
+			var d = new Date();
+				d.setDate(d.getDate() - nr);
+			var day = d.getUTCFullYear() + '-' + (d.getUTCMonth() + 1) + '-' + d.getUTCDate();
+
+			request_results.push({'label': day, 'y': parseInt(r)});
 		});
+		send_results();
 	});
 
 };
