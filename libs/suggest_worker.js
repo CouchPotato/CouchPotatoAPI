@@ -1,12 +1,14 @@
 var redis = require('redis'),
+	fs = require('fs'),
 	rclient = redis.createClient();
 
 // Wait for users to be received
-process.on('message', function(users) {
+process.on('message', function(data) {
 
-	var range_multi = rclient.multi(),
+	var users = data.users,
+		range_multi = rclient.multi(),
 		done_users = 0,
-		increments = [];
+		increments = '';
 
 	users.forEach(function(user){
 		range_multi.zrevrange('usermovies:' + user, 0, 100); // Get last 100 movies from the user
@@ -24,7 +26,7 @@ process.on('message', function(users) {
 
 				user_movies.slice(nr).forEach(function(next_movie){
 					if(movie != next_movie){
-						increments.push(movie + '-' + next_movie);
+						increments += movie + '-' + next_movie + '\n';
 					}
 				});
 
@@ -32,7 +34,9 @@ process.on('message', function(users) {
 
 		});
 
-		process.send({'type': 'done', 'increments': increments});
+		fs.appendFileSync('./data/suggestions_' + data.i + '.txt', increments);
+
+		process.send({'type': 'done'});
 
 	});
 

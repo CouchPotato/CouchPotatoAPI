@@ -1,6 +1,8 @@
 var redis = require('redis'),
 	async = require('async'),
 	rclient = redis.createClient(),
+	fs = require('fs'),
+	readline = require('readline'),
 	fork = require('child_process').fork,
 	cpus = require('os').cpus().length;
 
@@ -99,7 +101,62 @@ exports.cron = function(req, res){
 				now = Math.round(date.getTime() / 1000),
 				results,
 				total,
-				per_process = 10;
+				per_process = 10,
+				current_file = 0,
+				total_files = cpus,
+				nr = 0;
+
+			var processNext = function(){
+
+				if(current_file < total_files){
+					current_file++;
+					fileImport();
+				}
+				else {
+					doRename();
+				}
+			}
+
+			var fileImport = function(){
+
+				var file = './data/suggestions_'+current_file+'.txt';
+
+				if(!fs.existsSync(file)){
+					processNext();
+					return;
+				}
+
+				var rd = readline.createInterface({
+					input: fs.createReadStream(file),
+					terminal: false
+				});
+
+				var multi = rclient.multi();
+				rd.on('line', function(line) {
+					var s = line.split('-');
+					multi.zincrby('suggest_temp:'+s[0], 1, s[1]);
+
+					if(nr % 2500 == 0 && nr > 0){
+						rd.pause();
+
+						multi.set(keeper_key, 'Current file import: ' + current_file + ' ' + nr);
+						multi.exec(function(){
+							multi = rclient.multi();
+							rd.resume();
+						})
+					}
+
+					nr++;
+				});
+
+				rd.on('close', function(){
+					multi.exec(function(){
+						fs.unlinkSync(file);
+						processNext();
+					});
+				});
+
+			}
 
 			var doRename = function(){
 
@@ -150,7 +207,7 @@ exports.cron = function(req, res){
 
 				// Send users to process to the worker
 				if(users)
-					workers[i].send(users);
+					workers[i].send({'users': users, 'i': i});
 
 			}
 
@@ -161,43 +218,26 @@ exports.cron = function(req, res){
 
 					if(message.type == 'done'){
 
-						var increments = {};
-						message.increments.forEach(function(m){
-							if(!increments[m])
-								increments[m] = 0;
+						if(results.length > 0){
+							goWork(i);
+						}
+						else {
 
-							increments[m]++;
-						});
+							workers[i].kill();
+							workers[i] = undefined;
 
-						var multi = rclient.multi();
-						for(var inc in increments){
-							var s = inc.split('-');
-							multi.zincrby('suggest_temp:'+s[0], increments[inc], s[1]);
-						};
-
-						multi.exec(function(err, results){
-
-							if(results.length > 0){
-								goWork(i);
-							}
-							else {
-
-								workers[i].kill();
-								workers[i] = undefined;
-
-								var active_workers = 0;
-								for(var nr = 0; nr < cpus; nr++) {
-									if(workers[nr])
-										active_workers++;
-								}
-
-								// Workers are done, go process results
-								if(active_workers == 0)
-									doRename();
-
+							var active_workers = 0;
+							for(var nr = 0; nr < cpus; nr++) {
+								if(workers[nr])
+									active_workers++;
 							}
 
-						});
+							// Workers are done, go process results
+							if(active_workers == 0)
+								fileImport();
+
+						}
+
 					}
 
 				});
@@ -205,7 +245,7 @@ exports.cron = function(req, res){
 			}
 
 			// Get last months user
-			rclient.zrangebyscore('user-last-request', (now)-21600, now-10, function(err, result){
+			rclient.zrangebyscore('user-last-request', (now)-2419200, now-10, function(err, result){
 
 				if(result.length > 0){
 					results = result;
@@ -220,7 +260,7 @@ exports.cron = function(req, res){
 					}
 				}
 				else {
-					doRename();
+					fileImport();
 				}
 
 				res.type('application/json');
