@@ -2,7 +2,6 @@ var redis = require('redis'),
 	async = require('async'),
 	rclient = redis.createClient(),
 	fs = require('fs'),
-	readline = require('readline'),
 	fork = require('child_process').fork,
 	cpus = require('os').cpus().length;
 
@@ -101,69 +100,17 @@ exports.cron = function(req, res){
 				now = Math.round(date.getTime() / 1000),
 				results,
 				total,
-				per_process = 10,
-				current_file = 0,
-				total_files = cpus,
-				nr = 0;
-
-			var processNext = function(){
-
-				if(current_file < total_files){
-					current_file++;
-					fileImport();
-				}
-				else {
-					doRename();
-				}
-			}
-
-			var fileImport = function(){
-
-				var file = './data/suggestions_'+current_file+'.txt';
-
-				if(!fs.existsSync(file)){
-					processNext();
-					return;
-				}
-
-				var rd = readline.createInterface({
-					input: fs.createReadStream(file),
-					terminal: false
-				});
-
-				var multi = rclient.multi();
-				rd.on('line', function(line) {
-					var s = line.split('-');
-					multi.zincrby('suggest_temp:'+s[0], 1, s[1]);
-
-					if(nr % 2500 == 0 && nr > 0){
-						rd.pause();
-
-						multi.set(keeper_key, 'Current file import: ' + current_file + ' ' + nr);
-						multi.exec(function(){
-							multi = rclient.multi();
-							rd.resume();
-						})
-					}
-
-					nr++;
-				});
-
-				rd.on('close', function(){
-					multi.exec(function(){
-						fs.unlinkSync(file);
-						processNext();
-					});
-				});
-
-			}
+				per_process = 100,
+				increments = {}
+				writeout_nr = 0,
+				keys_length = 0;
 
 			var doRename = function(){
 
 				// Get all temp suggestion keys
 				rclient.keys('suggest_temp:*', function(err, result){
 
-					console.log('Suggestions: ' + result.length);
+					p('Suggestions: ' + result.length);
 
 					var multi = rclient.multi();
 					result.forEach(function(suggest_key){
@@ -207,36 +154,77 @@ exports.cron = function(req, res){
 
 				// Send users to process to the worker
 				if(users)
-					workers[i].send({'users': users, 'i': i});
+					workers[i].send(users);
 
 			}
 
 			var receiveMessage = function(i){
+
+				var next = function(){
+					if(results.length > 0){
+						goWork(i);
+					}
+					else {
+
+						workers[i].kill();
+						workers[i] = undefined;
+
+						var active_workers = 0;
+						for(var nr = 0; nr < cpus; nr++) {
+							if(workers[nr])
+								active_workers++;
+						}
+
+						// Workers are done, go process results
+						if(active_workers == 0)
+							doRename();
+
+					}
+				}
 
 				// Send new users when one exits
 				workers[i].on('message', function(message){
 
 					if(message.type == 'done'){
 
-						if(results.length > 0){
-							goWork(i);
-						}
-						else {
+						Object.keys(message.increments).forEach(function(key){
+							if(message.increments[key] < 2) return;
 
-							workers[i].kill();
-							workers[i] = undefined;
-
-							var active_workers = 0;
-							for(var nr = 0; nr < cpus; nr++) {
-								if(workers[nr])
-									active_workers++;
+							if(increments[key])
+								increments[key] += message.increments[key];
+							else {
+								increments[key] = message.increments[key];
+								keys_length++;
 							}
+						});
 
-							// Workers are done, go process results
-							if(active_workers == 0)
-								fileImport();
+						if(keys_length > 100000){
+							var old_increments = increments;
+
+							keys_length = 0;
+							increments = {};
+							writeout_nr++;
+
+							var keys = Object.keys(old_increments);
+
+							var multi = rclient.multi();
+							keys.forEach(function(key){
+								var value = old_increments[key];
+								if(value < 5) return;
+
+								var s = key.split(':');
+								multi.zincrby('suggest_temp:'+s[0], value, s[1]);
+							});
+
+							multi.exec(function(){
+								next();
+							});
 
 						}
+						else{
+							next();
+						}
+
 
 					}
 
@@ -253,6 +241,7 @@ exports.cron = function(req, res){
 
 					// Spawn workers
 					for(var nr = 0; nr < cpus; nr++) {
+
 						workers[nr] = fork(__dirname+'/../libs/suggest_worker.js');
 
 						receiveMessage(nr);
