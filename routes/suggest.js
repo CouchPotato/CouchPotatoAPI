@@ -2,9 +2,12 @@ var redis = require('redis'),
 	async = require('async'),
 	rclient = redis.createClient(),
 	fs = require('fs'),
+	RedisProtocol = require('redis-mass/lib/RedisProtocol'),
 	readline = require('readline'),
+	path = require('path'),
 	fork = require('child_process').fork,
-	cpus = require('os').cpus().length;
+	cpus = require('os').cpus().length
+	exec = require('child_process').exec;
 
 /**
  * Give suggestions based on other movies
@@ -102,14 +105,16 @@ exports.cron = function(req, res){
 				results,
 				total,
 				per_process = 10,
-				current_file = 0,
-				total_files = cpus,
 				nr = 0;
+
+			if(!fs.existsSync('./data/suggestions'))
+				fs.mkdirSync('./data/suggestions');
 
 			var processNext = function(){
 
-				if(current_file < total_files){
-					current_file++;
+				var files = fs.readdirSync('./data/suggestions/');
+
+				if(files.length > 0){
 					fileImport();
 				}
 				else {
@@ -119,42 +124,27 @@ exports.cron = function(req, res){
 
 			var fileImport = function(){
 
-				var file = './data/suggestions_'+current_file+'.txt';
+				var files = fs.readdirSync('./data/suggestions/');
+
+				var file = './data/suggestions/'+files[0],
+					outputfile = './data/'+files[0]+'.redis';
+
+				rclient.set(keeper_key, 'Processing: ' + file);
 
 				if(!fs.existsSync(file)){
 					processNext();
 					return;
 				}
 
-				var rd = readline.createInterface({
-					input: fs.createReadStream(file),
-					terminal: false
-				});
+				var text = fs.readFileSync(file).toString();
+				var protocol = RedisProtocol.encode(text);
+				fs.writeFileSync(outputfile, protocol);
 
-				var multi = rclient.multi();
-				rd.on('line', function(line) {
-					var s = line.split('-');
-					multi.zincrby('suggest_temp:'+s[0], 1, s[1]);
+				fs.unlinkSync(file);
 
-					if(nr % 2500 == 0 && nr > 0){
-						rd.pause();
+				exec('cat '+path.resolve(outputfile)+' | redis-cli --pipe');
 
-						multi.set(keeper_key, 'Current file import: ' + current_file + ' ' + nr);
-						multi.exec(function(){
-							multi = rclient.multi();
-							rd.resume();
-						})
-					}
-
-					nr++;
-				});
-
-				rd.on('close', function(){
-					multi.exec(function(){
-						fs.unlinkSync(file);
-						processNext();
-					});
-				});
+				processNext();
 
 			}
 
