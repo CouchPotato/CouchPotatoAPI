@@ -34,7 +34,7 @@ process.on('message', function(data) {
 
 		});
 
-		fs.appendFileSync('./data/suggestions/' + data.i + '-' + Math.round(Math.random()*100) + '.txt', increments);
+		fs.appendFileSync('./data/suggestions/' + data.i + '-' + Math.round(Math.random()*10) + '.txt', increments);
 
 		process.send({'type': 'done'});
 
