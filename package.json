@@ -6,7 +6,6 @@
 		"start": "node app.js"
 	},
 	"dependencies": {
-		"redis-mass": ">= 0.1.1",
 		"express": ">= 3.4.4",
 		"socket.io": ">= 0.9.16",
 		"cheerio": ">= 0.12.4",

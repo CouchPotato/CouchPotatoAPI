@@ -26,7 +26,7 @@ process.on('message', function(data) {
 
 				user_movies.slice(nr).forEach(function(next_movie){
 					if(movie != next_movie){
-						increments += 'ZINCRBY suggest_temp:'+movie + ' 1 ' + next_movie + '\n';
+						increments += movie + '-' + next_movie + '\n';
 					}
 				});
 
@@ -34,7 +34,7 @@ process.on('message', function(data) {
 
 		});
 
-		fs.appendFileSync('./data/suggestions/' + data.i + '-' + Math.round(Math.random()*10) + '.txt', increments);
+		fs.appendFileSync('./data/suggestions_' + data.i + '.txt', increments);
 
 		process.send({'type': 'done'});
 
