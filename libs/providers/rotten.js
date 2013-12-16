@@ -26,15 +26,21 @@ exports.eta = function(imdb, callback){
 			return;
 		}
 
-		var rotten = JSON.parse(body)
-			dates = rotten.release_dates;
-
-		callback(null, dates ? {
-			'dvd': dates.dvd ? strtotime(dates.dvd) : 0,
-			'theater': dates.theater ? strtotime(dates.theater) : 0,
-			'bluray': dates.dvd ? (strtotime(dates.dvd) > 0 && rotten.year > 2005) : false,
-			'expires': now+(604800*2)
-		} : null);
+		try {
+			var rotten = JSON.parse(body),
+				dates = rotten.release_dates;
+	
+			callback(null, dates ? {
+				'dvd': dates.dvd ? strtotime(dates.dvd) : 0,
+				'theater': dates.theater ? strtotime(dates.theater) : 0,
+				'bluray': dates.dvd ? (strtotime(dates.dvd) > 0 && rotten.year > 2005) : false,
+				'expires': now+(604800*2)
+			} : null);
+		}
+		catch(err){
+			log.error(err);
+			callback(null, {});
+		}
 
 	});
 
