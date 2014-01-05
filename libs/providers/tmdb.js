@@ -10,7 +10,7 @@ var config = null,
 
 moviedb.configuration(function(error, c){
 	config = c;
-	
+
 	try {
 		img_url = c.images.secure_base_url;
 	}
@@ -55,12 +55,23 @@ exports.info = function(id, callback){
 			'genres': genres
 		}
 
-		// Return
-		callback(null, movie_data);
-
 		// Cache TMDB -> IMDB id
 		if(r.imdb_id)
 			rclient.set('translate_tmdb:' + r.id, r.imdb_id);
+
+		// Get alternative titles
+		moviedb.movieAlternativeTitles({'id': id}, function(err, alt){
+
+			if(!err && alt && alt.titles && alt.titles.length > 0)
+				alt.titles.forEach(function(title, nr){
+					if(movie_data.titles.indexOf(title.title) === -1)
+						movie_data.titles.push(title.title)
+				});
+
+			// Return
+			callback(null, movie_data);
+
+		})
 
 	});
 
