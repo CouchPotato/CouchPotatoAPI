@@ -2,6 +2,7 @@ var settings = global.settings.moviedb,
 	redis = require('redis'),
 	rclient = redis.createClient(),
 	moviedb = require('moviedb')(settings.apikey),
+	async = require('async'),
 	log = global.createLogger(__filename);
 
 // TMDB image base url
@@ -47,31 +48,65 @@ exports.info = function(id, callback){
 				'backdrop': r.backdrop_path ? [img_url + 'w1280' + r.backdrop_path] : [],
 				'poster_original': r.poster_path ? [img_url + 'original' + r.poster_path] : [],
 				'backdrop_original': r.backdrop_path ? [img_url + 'original' + r.backdrop_path] : [],
+				'actors': {}
 			},
 			'runtime': r.runtime,
 			'plot': r.overview,
 			'tagline': r.tagline,
 			'imdb': r.imdb_id,
-			'genres': genres
+			'genres': genres,
+			'actor_roles': {}
 		}
 
 		// Cache TMDB -> IMDB id
 		if(r.imdb_id)
 			rclient.set('translate_tmdb:' + r.id, r.imdb_id);
 
-		// Get alternative titles
-		moviedb.movieAlternativeTitles({'id': id}, function(err, alt){
 
-			if(!err && alt && alt.titles && alt.titles.length > 0)
-				alt.titles.forEach(function(title, nr){
-					if(movie_data.titles.indexOf(title.title) === -1)
-						movie_data.titles.push(title.title)
+		async.parallel([
+			function(cb){
+
+				// Get alternative titles
+				moviedb.movieAlternativeTitles({'id': id}, function(err, alt){
+
+					if(!err && alt && alt.titles && alt.titles.length > 0)
+						alt.titles.forEach(function(title, nr){
+							if(movie_data.titles.indexOf(title.title) === -1)
+								movie_data.titles.push(title.title)
+						});
+
+					cb();
+
 				});
+
+			},
+			function(cb){
+
+				// Get cast members + images
+				moviedb.movieCasts({'id': id}, function(err, casts){
+
+					if(!err && casts && casts.cast && casts.cast.length > 0)
+						casts.cast.forEach(function(member, nr){
+							if(member.character && member.character.length > 0){
+
+								movie_data.actor_roles[member.name] = member.character;
+
+								if(member.profile_path && member.profile_path.length > 0)
+									movie_data.images.actors[member.name] = img_url + 'w185' + member.profile_path;
+							}
+						});
+
+					cb();
+
+				});
+
+			}
+		], function(err, results){
 
 			// Return
 			callback(null, movie_data);
 
-		})
+		});
 
 	});
 
