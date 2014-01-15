@@ -85,8 +85,10 @@ exports.eta = function(imdb, callback){
 					}
 
 					var match = (body || '').match(/videoeta.com\/movie\/(\d+)/),
+						no_results = (body || '').toLowerCase().match(/yellow.alert/),
 						detail_url;
-					if(match && match.length > 0 && match[1])
+
+					if(!no_results && match && match.length > 0 && match[1])
 						detail_url = settings.url + '/movie/'+match[1]+'/'+((movie_info.original_title || 'a').replace(/\W/g, '-').toLowerCase())+'/';
 
 					if(detail_url){
