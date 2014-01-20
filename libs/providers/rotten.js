@@ -27,7 +27,7 @@ exports.eta = function(imdb, callback){
 		}
 
 		try {
-			var rotten = JSON.parse(body),
+			var rotten = JSON.parse(trim(body)),
 				dates = rotten.release_dates;
 	
 			callback(null, dates ? {

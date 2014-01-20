@@ -1,17 +1,56 @@
 var async = require('async'),
 	request = require('request'),
+	zlib = require('zlib'),
 	providers = require('./providers'),
 	toIMDB = require('./providers/tmdb').toIMDB,
 	redis = require('redis'),
 	rclient = redis.createClient(),
 	log = global.createLogger(__filename);
 
+var headers = {
+	'accept-charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+	'accept-language': 'en-US,en;q=0.8',
+	'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+	'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:29.0) Gecko/20100101 Firefox/29.0',
+	'accept-encoding': 'gzip,deflate',
+};
+
 // Some logging around request
 exports.request = function(options, callback){
 	if(settings.ENV == 'development')
 		log.info('Opening url:' + (options instanceof Object ? options.url : options));
 
-	return request(options, callback);
+	var req = request.get(merge({'headers': headers}, options));
+
+	req.on('response', function(res) {
+
+		var chunks = [];
+		res.on('data', function(chunk) {
+			chunks.push(chunk);
+		});
+
+		res.on('end', function() {
+			var buffer = Buffer.concat(chunks);
+			var encoding = res.headers['content-encoding'];
+			if (encoding == 'gzip') {
+				zlib.gunzip(buffer, function(err, decoded) {
+					callback(err, res, decoded && decoded.toString());
+				});
+			} else if (encoding == 'deflate') {
+				zlib.inflate(buffer, function(err, decoded) {
+					callback(err, res, decoded && decoded.toString());
+				})
+			} else {
+				callback(null, res, buffer.toString());
+			}
+		});
+	});
+
+	req.on('error', function(err) {
+		callback(err);
+	});
+
+
 }
 
 exports.isValid = function(name, callback){
