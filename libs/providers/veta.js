@@ -70,7 +70,7 @@ exports.eta = function(imdb, callback){
 					return;
 				}
 
-				var search_url = 'http://www.bing.com/search?q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29+site%3Ahttp%3A%2F%2Fvideoetas.com%2Fmovie%2F'
+				var search_url = 'http://www.bing.com/search?q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29+site%3A'+encodeURIComponent(settings.url)+'%2Fmovie%2F'
 
 
 				api.request({
