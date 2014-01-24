@@ -1,6 +1,26 @@
 var settings = global.settings.moviedb,
 	log = global.createLogger(__filename);
 
+var cleanupList = function(list_string){
+	if(!list_string) return [];
+	return (list_string || '').replace(/,\s/g, ',').split(',');
+}
+
+var runtimeToMinutes = function(runtime_str){
+	runtime = 0;
+
+	if(!runtime_str)
+		return null;
+
+	var matches = runtime_str.match(/(\d*.?\d+).(h|hr|hrs|mins|min)+/g);
+	matches.forEach(function(match){
+		var splt = match.replace(/^\s+|\s+$/g, '').split(' ');
+		runtime += parseInt(splt[0]) * (splt[1] == 'h' ? 60 : 1)
+	});
+
+	return runtime
+}
+
 exports.info = function(imdb, callback){
 
 	// Only except imdb ids
@@ -26,26 +46,6 @@ exports.info = function(imdb, callback){
 				delete movie[key];
 		};
 
-		var cleanupList = function(list_string){
-			if(!list_string) return [];
-			return (list_string || '').replace(/,\s/g, ',').split(',');
-		}
-
-		var runtimeToMinutes = function(runtime_str){
-			runtime = 0;
-
-			if(!runtime_str)
-				return null;
-
-			var matches = runtime_str.match(/(\d*.?\d+).(h|hr|hrs|mins|min)+/g);
-			matches.forEach(function(match){
-				var splt = match.replace(/^\s+|\s+$/g, '').split(' ');
-				runtime += parseInt(splt[0]) * (splt[1] == 'h' ? 60 : 1)
-			});
-
-			return runtime
-		}
-
 		var movie_data = {
 			'via_imdb': true,
 			'titles': movie.Title ? [movie.Title] : [],
@@ -54,9 +54,7 @@ exports.info = function(imdb, callback){
 			'images': {
 				'poster': (movie.Poster && movie.Poster.length > 4) ? [movie.Poster] : [],
 			},
-			'rating': {
-				'imdb': [parseFloat(movie.imdbRating || 0), parseInt((movie.imdbVotes || '0').replace(',', ''))],
-			},
+			'rating': {},
 			'plot': movie.Plot,
 			'imdb': movie.imdbID,
 			'mpaa': movie.Rating,
@@ -65,6 +63,11 @@ exports.info = function(imdb, callback){
 			'writers': cleanupList(movie.Writer),
 			'actors': cleanupList(movie.Actors),
 		}
+
+		var runtime, rating;
+
+		if(rating = parseFloat(movie.imdbRating || 0))
+			movie_data['rating']['imdb'] = [rating, parseInt((movie.imdbVotes || '0').replace(',', ''))]
 
 		if(runtime = runtimeToMinutes(movie.Runtime))
 			movie_data['runtime'] = runtime;
