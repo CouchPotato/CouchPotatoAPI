@@ -4,6 +4,8 @@ module.exports = {
 			'apikey': ''
 		},
 		'mdb': {
+			'proxy_url': '',
+			'info_url': '',
 			'eta_url': '',
 			'ismovie_url': '',
 			'timout': 10000
@@ -26,4 +28,4 @@ module.exports = {
 
 	development: {},
 	production: {}
-}; 
+};

@@ -2,6 +2,53 @@ var cheerio = require('cheerio'),
 	settings = global.settings.mdb,
 	log = global.createLogger(__filename);
 
+exports.info = function(imdb, callback){
+
+	// Only except imdb ids
+	if((imdb + '').substring(0, 2) != 'tt'){
+		callback();
+		return;
+	}
+
+	api.request({
+		'timeout': settings.timout || 3000,
+		'url': settings.proxy_url + encodeURIComponent(settings.info_url + imdb),
+		'json': true
+	}, function(err, response, movie) {
+
+		// Log errors
+		if(err || !movie.data){
+			callback(null, {});
+			return;
+		}
+
+		var movie = movie.data;
+
+		var movie_data = {
+			'via_imdb': true,
+			'titles': movie.title ? [movie.title] : [],
+			'original_title': movie.title,
+			'year': movie.year ? parseInt(movie.year) : null,
+			'images': {
+				'poster': (movie.image && movie.image.url) ? [movie.image.url] : [],
+			},
+			'rating': {
+				'imdb': {0:movie.rating, 1:movie.num_votes}
+			},
+			'runtime': movie.runtime ? movie.runtime.time / 60 : null,
+			'plot': movie.plot && movie.plot.outline ? movie.plot.outline : null,
+			'imdb': movie.imdbID,
+			'mpaa': movie.certificate ? movie.certificate.certificate : null,
+			'genres': movie.genres,
+		}
+
+		// Return
+		callback(null, movie_data);
+
+	});
+
+}
+
 exports.eta = function(imdb, callback){
 
 	// Only except imdb ids
