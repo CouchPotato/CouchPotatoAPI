@@ -70,7 +70,8 @@ exports.eta = function(imdb, callback){
 					return;
 				}
 
-				var search_url = 'https://www.google.nl/search?q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29+site%3Ahttp%3A%2F%2Fvideoeta.com%2Fmovie%2F+-old.videoeta.com+-beta.videoeta.com';
+				var search_url = 'http://www.bing.com/search?q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29+site%3A'+encodeURIComponent(settings.url)+'%2Fmovie%2F'
+
 
 				api.request({
 					'timeout': settings.timeout || 3000,
@@ -85,7 +86,7 @@ exports.eta = function(imdb, callback){
 					}
 
 					var match = (body || '').match(/videoeta.com\/movie\/(\d+)/),
-						no_results = (body || '').toLowerCase().match(/yellow.alert/),
+						no_results = (body || '').toLowerCase().match(/id=\"no_results\"/),
 						detail_url;
 
 					if(!no_results && match && match.length > 0 && match[1])
