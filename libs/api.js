@@ -214,6 +214,10 @@ exports.getMovieInfo = function(id, callback){
 							movie_info = merge(movie_info, result);
 						});
 
+						// Make array of rating
+						if(movie_info.rating.imdb)
+							movie_info.rating.imdb = [movie_info.rating.imdb[0], movie_info.rating.imdb[1]]
+
 						next_callback(null, movie_info);
 
 					});
