@@ -34,14 +34,14 @@ exports.request = function(options, callback){
 			var encoding = res.headers['content-encoding'];
 			if (encoding == 'gzip') {
 				zlib.gunzip(buffer, function(err, decoded) {
-					callback(err, res, decoded && decoded.toString());
+					callback(err, res, decoded && (options.json ? JSON.parse(decoded.toString()) : decoded.toString()));
 				});
 			} else if (encoding == 'deflate') {
 				zlib.inflate(buffer, function(err, decoded) {
-					callback(err, res, decoded && decoded.toString());
+					callback(err, res, decoded && (options.json ? JSON.parse(decoded.toString()) : decoded.toString()));
 				})
 			} else {
-				callback(null, res, buffer.toString());
+				callback(null, res, (options.json ? JSON.parse(buffer.toString()) : buffer.toString()));
 			}
 		});
 	});
