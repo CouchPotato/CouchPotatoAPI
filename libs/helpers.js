@@ -12,16 +12,17 @@ global.merge = function(obj1, obj2) {
 
 	for(var k in obj2) {
 		try {
-			if(obj2[k].constructor == Array){  // Merge lists
+			if(obj2[k] && obj2[k].constructor == Array){  // Merge lists
 				obj1[k] = obj2[k].concat(obj1[k]);
 				obj1[k] = obj1[k].filter(function(elem, pos) {
 					return obj1[k].indexOf(elem) == pos && elem != null;
 				});
 			}
-			else if(obj2[k].constructor == Object) // Property in destination object set; update its value.
-				obj1[k] = merge(obj1[k], obj2[k]);
+			else if(obj2[k] && obj2[k].constructor == Object){ // Property in destination object set; update its value.
+				obj1[k] = merge(obj1[k] || {}, obj2[k] || {});
+			}
 			else {
-				if(obj1[k] && obj2[k] && obj1[k].length > obj2[k].length)
+				if(obj1[k] && obj2[k] && obj1[k].length > obj2[k].length || !obj2[k])
 					continue;
 				else
 					obj1[k] = obj2[k];
