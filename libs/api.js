@@ -30,7 +30,7 @@ exports.request = function(options, callback){
 			result = decoded && (options.json ? JSON.parse(decoded.toString()) : decoded.toString())
 		}
 		catch(e){
-			log.error('Failed getting response')
+			log.error('Failed getting response: ' + options.url)
 		}
 
 		return result;
