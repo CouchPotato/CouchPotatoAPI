@@ -20,7 +20,21 @@ exports.request = function(options, callback){
 	if(settings.ENV == 'development')
 		log.info('Opening url:' + (options instanceof Object ? options.url : options));
 
-	var req = request.get(merge({'headers': headers}, options));
+	var req = request.get(merge({'headers': headers}, options)),
+		callback_done = false;
+
+	var do_response = function(decoded){
+
+		var result = options.json ? {} : '';
+		try {
+			result = decoded && (options.json ? JSON.parse(decoded.toString()) : decoded.toString())
+		}
+		catch(e){
+			log.error('Failed getting response')
+		}
+
+		return result;
+	}
 
 	req.on('response', function(res) {
 
@@ -34,20 +48,29 @@ exports.request = function(options, callback){
 			var encoding = res.headers['content-encoding'];
 			if (encoding == 'gzip') {
 				zlib.gunzip(buffer, function(err, decoded) {
-					callback(err, res, decoded && (options.json ? JSON.parse(decoded.toString()) : decoded.toString()));
+					if(!callback_done)
+						callback(err, res, err ? null : do_response(decoded));
+					callback_done = true;
 				});
 			} else if (encoding == 'deflate') {
 				zlib.inflate(buffer, function(err, decoded) {
-					callback(err, res, decoded && (options.json ? JSON.parse(decoded.toString()) : decoded.toString()));
+					if(!callback_done)
+						callback(err, res, err ? null : do_response(decoded));
+					callback_done = true;
 				})
 			} else {
-				callback(null, res, (options.json ? JSON.parse(buffer.toString()) : buffer.toString()));
+				if(!callback_done)
+					callback(null, res, do_response(buffer));
+				callback_done = true;
 			}
 		});
+
 	});
 
 	req.on('error', function(err) {
-		callback(err);
+		if(!callback_done)
+			callback(err);
+		callback_done = true;
 	});
 
 
