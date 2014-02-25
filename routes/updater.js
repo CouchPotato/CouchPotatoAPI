@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 /**
  * Return the url source updater can find the zip
  */
@@ -21,5 +23,22 @@ exports.url = function(req, res) {
 			branch,
 		'type': 'zip'
 	});
+
+};
+
+var build_data = JSON.parse(fs.readFileSync('./data/builds.json').toString()),
+	builds = '';
+
+build_data.versions.forEach(function(build){
+	build_data.urls.forEach(function(url){
+		var href = url.replace(/\{version\}/g, build);
+		builds += '<div><a href="'+href+'">'+href.split('/').pop()+'</a></div>'
+	});
+});
+
+exports.builds = function(req, res) {
+
+	res.type('text/html');
+	res.end('<html><body><h1>CouchPotato Versions</h1>'+builds+'</body></html>');
 
 };

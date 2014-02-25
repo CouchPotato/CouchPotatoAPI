@@ -100,6 +100,7 @@ app.post('/suggest/', stats, restrict, suggest.imdbs);
 app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, restrict, messages.list);
 app.get('/updater/', stats, updater.url);
+app.get('/updates/*', stats, updater.builds);
 app.get('/stats/', rstats.show);
 app.get('/stats/map/', rstats.map);
 app.get('*', function(req, res){
