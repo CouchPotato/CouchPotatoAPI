@@ -32,15 +32,16 @@ exports.info = function(imdb, callback){
 			'images': {
 				'poster': (movie.image && movie.image.url) ? [movie.image.url] : [],
 			},
-			'rating': {
-				'imdb': {0:movie.rating, 1:movie.num_votes}
-			},
+			'rating': {},
 			'runtime': movie.runtime ? movie.runtime.time / 60 : null,
 			'plot': movie.plot && movie.plot.outline ? movie.plot.outline : null,
 			'imdb': movie.imdbID,
 			'mpaa': movie.certificate ? movie.certificate.certificate : null,
 			'genres': movie.genres,
 		}
+
+		if(movie.rating && movie.num_votes)
+			movie_data['rating']['imdb'] = {0:movie.rating, 1:movie.num_votes}
 
 		// Return
 		callback(null, movie_data);
