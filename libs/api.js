@@ -238,7 +238,7 @@ exports.getMovieInfo = function(id, callback){
 						});
 
 						// Make array of rating
-						if(movie_info.rating && movie_info.rating.imdb)
+						if(movie_info.rating && movie_info.rating.imdb && movie_info.rating.imdb[0] && movie_info.rating.imdb[1])
 							movie_info.rating.imdb = [movie_info.rating.imdb[0], movie_info.rating.imdb[1]]
 
 						next_callback(null, movie_info);
