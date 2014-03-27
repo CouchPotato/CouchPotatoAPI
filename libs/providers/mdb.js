@@ -106,7 +106,7 @@ exports.ismovie = function(imdb, callback){
 			return;
 		}
 
-		callback(null, !(body.toLowerCase().indexOf('(tv series') > -1));
+		callback(null, !(body.indexOf('content="video.tv_show"') > -1));
 
 	});
 
