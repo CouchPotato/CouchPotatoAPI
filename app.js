@@ -51,12 +51,6 @@ app.use(function(req, res, next){
 
 	req.url = req.url.replace(/%/g, '%25').replace('/\+/g', ' ');
 
-	if(req.query.legacy){
-		req.headers['x-cp-version'] = req.query.HTTP_X_CP_VERSION;
-		req.headers['x-cp-identifier'] = req.query.HTTP_X_CP_IDENTIFIER;
-		req.headers['x-cp-api'] = req.query.HTTP_X_CP_API;
-	}
-
 	next();
 });
 

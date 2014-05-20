@@ -7,7 +7,7 @@ exports.restrict = function(req, res, next) {
 			res.status(404).send('Not found');
 			return;
 		}
-		else if (req.api_version === 0){
+		else if (req.api_version === 0 || req.identifier === null){
 			res.status(401).send('Failed because you are using an unsupported version of CP, please update');
 			return;
 		}

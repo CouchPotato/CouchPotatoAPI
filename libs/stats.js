@@ -14,10 +14,18 @@ exports.stats = function(req, res, next) {
 	var version = req.header('x-cp-version') || '',
 
 		// Create identifier based on IP if it doesn't exist
-		user = (req.header('x-cp-identifier') || md5(req.ip)).substr(0, 11),
+		user = (req.header('x-cp-identifier') || '').substr(0, 11),
 		split = version.split('-');
 
-	req.api_version = req.header('x-cp-api') || 0;
+    req.api_version = req.header('x-cp-api') || 0;
+    req.identifier = req.header('x-cp-identifier') || null;
+
+    // No user set, don't log
+    if(!req.identifier){
+        rclient.zincrby('user-old-version', 1, req.ip);
+        next();
+        return;
+    }
 
 	if(split.length == 4){
 		req.stats = {
