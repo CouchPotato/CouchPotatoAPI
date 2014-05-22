@@ -22,7 +22,7 @@ exports.stats = function(req, res, next) {
 
     // No user set, don't log
     if(!req.identifier){
-        rclient.zincrby('user-old-version', 1, req.ip);
+        rclient.zincrby('user-old-version', 1, req.ip + (version ? ' ' + version : ''));
         next();
         return;
     }
