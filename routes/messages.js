@@ -3,10 +3,25 @@ var fs = require('fs');
 /**
  * Return messages
  */
-var messages = JSON.parse(fs.readFileSync('./data/messages.json').toString());
+var messages = JSON.parse(fs.readFileSync('./data/messages.json').toString()),
+    legacy_message = {
+        "time": 1400766111,
+        "message": "It looks like you're running an outdated CouchPotato. Please update, be awesome.",
+        "important": true
+    };
+
 exports.list = function(req, res) {
 
 	res.type('application/json');
-	res.json(messages);
+
+    if(req.api_version === 0 || req.identifier === null){
+        var msgs = messages.slice(0);
+        msgs.unshift(legacy_message);
+        res.json(msgs);
+    }
+    else {
+        res.json(messages);
+    }
+
 
 };
