@@ -6,17 +6,19 @@
 		"start": "node app.js"
 	},
 	"dependencies": {
-		"express": ">= 3.4.4",
-		"socket.io": ">= 0.9.16",
-		"cheerio": ">= 0.12.4",
-		"request": ">= 2.27.0",
+		"express": ">= 4.4.0",
+		"compression": ">= 1.0.3",
+		"body-parser": ">= 1.3.0",
+		"socket.io": ">= 1.0.3",
+		"cheerio": ">= 0.16.0",
+		"request": ">= 2.36.0",
 		"zlib": ">= 1.0.5",
 		"moviedb": ">= 0.1",
-		"async": ">= 0.2.9",
+		"async": ">= 0.9.0",
 		"settings": ">= 0.1.1",
-		"redis": ">= 0.9.0",
-		"hiredis": ">= 0.1.15",
-		"winston": ">= 0.7.2",
-		"geoip": ">= 0.4.12"
+		"redis": ">= 0.10.3",
+		"hiredis": ">= 0.1.16",
+		"winston": ">= 0.7.3",
+		"geoip": ">= 0.5.4"
 	}
 }
