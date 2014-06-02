@@ -11,7 +11,10 @@ global.api = require('./libs/api');
 
 // Import modules
 var express = require('express'),
-	redis = require('redis'),
+    compress = require('compression'),
+    bodyParser = require('body-parser'),
+
+    redis = require('redis'),
 
 	// Routes
 	home = require('./routes'),
@@ -59,8 +62,8 @@ app.use(express.static(__dirname + '/public'));
 
 // all environments
 app.set('port', process.env.PORT || 3000);
-app.use(express.compress());
-app.use(express.bodyParser());
+app.use(compress());
+app.use(bodyParser());
 
 // Use proper IP
 app.enable('trust proxy');
