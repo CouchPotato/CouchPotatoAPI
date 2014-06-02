@@ -20,9 +20,8 @@ exports.stats = function(req, res, next) {
     req.api_version = req.header('x-cp-api') || 0;
     req.identifier = req.header('x-cp-identifier') || null;
 
-    // No user set, don't log
+    // No user set, don't log (probably updater calls)
     if(!req.identifier){
-        rclient.zincrby('user-old-version', 1, req.ip + (version ? ' ' + version : ''));
         next();
         return;
     }
