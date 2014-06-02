@@ -39,8 +39,7 @@ var express = require('express'),
 	winston = require('winston');
 
 var app = express(),
-	server = http.createServer(app),
-	io = require('socket.io').listen(server);
+	server = http.createServer(app);
 
 // Reset some stuff first
 app.disable('x-powered-by');
@@ -99,7 +98,6 @@ app.get('/messages/', stats, messages.list);
 app.get('/updater/', stats, updater.url);
 app.get('/updates/*', stats, updater.builds);
 app.get('/stats/', rstats.show);
-app.get('/stats/map/', rstats.map);
 app.get('*', function(req, res){
 	res.status(404).send('Not found');
 });
@@ -108,34 +106,6 @@ app.get('*', function(req, res){
 app.use(function(err, req, res, next){
 	winston.error(req.url + ': ' + err.stack);
 	res.status(500).send('Something isn\'t right.. abort abort!');
-});
-
-// Socket.io stuff
-io.configure(function(){
-	io.enable('browser client minification');
-	io.enable('browser client gzip'); // gzip the file
-
-	var RedisStore = require('socket.io/lib/stores/redis');
-	io.set('store', new RedisStore({
-		'redisPub': redis.createClient(),
-		'redisSub': redis.createClient(),
-		'redisClient': redis.createClient()
-	}));
-});
-var rclient = redis.createClient();
-	rclient.subscribe('location');
-io.sockets.on('connection', function(socket) {
-
-	var on_message = function(channel, message){
-		console.log('Send to socket: '+ message);
-		socket.emit('location', message);
-	};
-	rclient.on('message', on_message);
-
-	socket.on('disconnect', function(){
-        rclient.removeListener('message', on_message)
-    });
-
 });
 
 // Start server

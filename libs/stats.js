@@ -1,9 +1,6 @@
 var crypto = require('crypto'),
 	redis = require('redis'),
-	rclient = redis.createClient()
-	geoip = require('geoip'),
-	city = new geoip.City('data/GeoLiteCity.dat'),
-	stats_geo = settings.stats.geo;
+	rclient = redis.createClient();
 
 var md5 = function(string){
 	return crypto.createHash('md5').update(string).digest('hex')
@@ -65,25 +62,5 @@ exports.stats = function(req, res, next) {
 
 	// Run all commands
 	multi.exec();
-
-	// Send out location for map stats
-	if(stats_geo){
-		var geo_hash = 'geo_cache:' + md5(user + req.ip);
-
-		rclient.get(geo_hash, function(err, result){
-			if(result){
-				rclient.publish('location', result);
-			}
-			else {
-				city.lookup(req.ip, function(err, data) {
-					if (data) {
-						var lat_long = [data.latitude, data.longitude].join(',');
-						rclient.publish('location', lat_long);
-						rclient.set(geo_hash, lat_long);
-					}
-				});
-			}
-		});
-	}
 
 }

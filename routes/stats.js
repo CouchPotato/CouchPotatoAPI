@@ -1,17 +1,7 @@
 var fs = require('fs'),
 	redis = require('redis'),
 	rclient = redis.createClient(),
-	log = global.createLogger(__filename),
-	geoip = require('geoip'),
-	city = new geoip.City('data/GeoLiteCity.dat');
-
-exports.map = function(req, res){
-
-	fs.readFile('./views/map.html', 'utf8', function(err, html){
-		res.send(html);
-	});
-
-}
+	log = global.createLogger(__filename);
 
 /**
  * GET stats page.
