@@ -40,7 +40,7 @@ exports.info = function(id, callback){
 		var movie_data = {
 			'via_tmdb': true,
 			'tmdb_id': r.id,
-			'titles': [r.title],
+			'titles': [],
 			'original_title': r.original_title,
 			'year': parseInt(r.release_date.substr(0, 4)),
 			'images': {
@@ -57,6 +57,12 @@ exports.info = function(id, callback){
 			'genres': genres,
 			'actor_roles': {}
 		}
+
+		var titles = [r.original_title, r.title];
+		titles.forEach(function(title){
+			if(title && movie_data.titles.indexOf(title) === -1)
+				movie_data.titles.push(title);
+		});
 
 		// Cache TMDB -> IMDB id
 		if(r.imdb_id)
