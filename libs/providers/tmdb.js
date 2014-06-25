@@ -58,7 +58,7 @@ exports.info = function(id, callback){
 			'actor_roles': {}
 		}
 
-		var titles = [r.original_title, r.title];
+		var titles = [r.title, r.original_title];
 		titles.forEach(function(title){
 			if(title && movie_data.titles.indexOf(title) === -1)
 				movie_data.titles.push(title);
