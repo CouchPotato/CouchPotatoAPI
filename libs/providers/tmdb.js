@@ -72,27 +72,62 @@ exports.info = function(id, callback){
 		async.parallel([
 			function(cb){
 
-				// Get alternative titles
-				moviedb.movieAlternativeTitles({'id': id}, function(err, alt){
+				// Get from Redis
+				var hash = 'tmdb:alt_titles:' + id;
+				rclient.get(hash, function(err, result){
 
-					if(!err && alt && alt.titles && alt.titles.length > 0)
-						alt.titles.forEach(function(title, nr){
+					// Log errors
+					if(err){
+						log.error(err);
+						cb();
+						return;
+					}
+
+					var extend = function(titles){
+						titles.forEach(function(title, nr){
 							if(movie_data.titles.indexOf(title.title) === -1)
 								movie_data.titles.push(title.title)
 						});
+					};
 
-					cb();
+					// Return if exists
+					if(result){
+						extend(JSON.parse(result));
+						cb();
+						return;
+					}
 
+					// Get alternative titles
+					moviedb.movieAlternativeTitles({'id': id}, function(err, alt){
+
+						if(!err && alt && alt.titles && alt.titles.length > 0){
+							extend(alt.titles);
+
+							// Cache
+							rclient.setex(hash, 172800, JSON.stringify(alt.titles));
+						}
+
+						cb();
+
+					});
 				});
 
 			},
 			function(cb){
 
-				// Get cast members + images
-				moviedb.movieCasts({'id': id}, function(err, casts){
+				// Get from Redis
+				var hash = 'tmdb:cast:' + id;
+				rclient.get(hash, function(err, result){
 
-					if(!err && casts && casts.cast && casts.cast.length > 0)
-						casts.cast.forEach(function(member, nr){
+					// Log errors
+					if(err){
+						log.error(err);
+						cb();
+						return;
+					}
+
+					var extend = function(cast){
+						cast.forEach(function(member, nr){
 							if(member.character && member.character.length > 0){
 
 								movie_data.actor_roles[member.name] = member.character;
@@ -101,8 +136,28 @@ exports.info = function(id, callback){
 									movie_data.images.actors[member.name] = img_url + 'w185' + member.profile_path;
 							}
 						});
+					};
 
-					cb();
+					// Return if exists
+					if(result){
+						extend(JSON.parse(result));
+						cb();
+						return;
+					}
+
+					// Get cast members + images
+					moviedb.movieCasts({'id': id}, function(err, casts){
+
+						if(!err && casts && casts.cast && casts.cast.length > 0){
+							extend(casts.cast);
+
+							// Cache
+							rclient.setex(hash, 172800, JSON.stringify(casts.cast));
+						}
+
+						cb();
+
+					});
 
 				});
 
