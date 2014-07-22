@@ -146,7 +146,7 @@ exports.info = function(id, callback){
 					}
 
 					// Get cast members + images
-					moviedb.movieCasts({'id': id}, function(err, casts){
+					moviedb.movieCredits({'id': id}, function(err, casts){
 
 						if(!err && casts && casts.cast && casts.cast.length > 0){
 							extend(casts.cast);
