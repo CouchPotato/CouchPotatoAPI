@@ -10,10 +10,11 @@ var redis = require('redis'),
  */
 exports.imdbs = function(req, res) {
 
-	var imdbs_suggest = (req.body.movies || req.query.movies || '').split(','),
+	var out_name = 'out_' + randomString(),
+		imdbs_suggest = (req.body.movies || req.query.movies || '').split(','),
 		imdbs_ignore = (req.body.ignore || req.query.ignore || '').split(','),
-		union = ['out'],
-		rem = ['out'];
+		union = [out_name],
+		rem = [out_name];
 
 	// Suggest for first time users
 	if(imdbs_suggest.length == 1 && !imdbs_suggest[0])
@@ -42,8 +43,8 @@ exports.imdbs = function(req, res) {
 	var multi = rclient.multi();
 	multi.zunionstore(union); // Get all requested
 	multi.zrem(rem) // Remove ignored
-	multi.zrevrange('out', 0, 9, 'WITHSCORES');
-	multi.del('out');
+	multi.zrevrange(out_name, 0, 9, 'WITHSCORES');
+	multi.del(out_name);
 	multi.exec(function(err, result){
 
 		var movies = splitArray(result[result.length-2]),

@@ -152,3 +152,14 @@ global.strtotime = function(text, now) {
 
 	return (date.getTime() / 1000);
 }
+
+global.randomString = function(len) {
+    var charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+		s = '',
+		len = len || 8;
+    for (var i = 0; i < len; i++) {
+    	var random_pos = Math.floor(Math.random() * charset.length);
+    	s += charset.substring(random_pos,random_pos+1);
+    }
+    return s;
+}
