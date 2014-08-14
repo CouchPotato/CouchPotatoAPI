@@ -90,7 +90,7 @@ exports.isValid = function(name, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'isValid redis error: ' + name);
 			callback(is_valid);
 			return;
 		}
@@ -105,7 +105,7 @@ exports.isValid = function(name, callback){
 
 				// Log errors
 				if(err){
-					log.error(err);
+					log.error(err, 'isValid: ' + name);
 					callback(is_valid);
 					return;
 				}
@@ -138,7 +138,7 @@ exports.isMovie = function(imdb, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'isMovie redis error: ' + imdb);
 			callback({});
 			return;
 		}
@@ -155,7 +155,7 @@ exports.isMovie = function(imdb, callback){
 
 				// Log errors
 				if(err){
-					log.error(err);
+					log.error(err, 'isMovie: ' + imdb);
 					callback({});
 					return;
 				}
@@ -190,7 +190,7 @@ exports.getMovieInfo = function(id, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'getMovieInfo redis error: ' + id);
 			callback({});
 			return;
 		}
@@ -225,7 +225,7 @@ exports.getMovieInfo = function(id, callback){
 
 						// Log errors
 						if(err){
-							log.error(err);
+							log.error(err, 'getMovieInfo: ' + (imdb_id || id));
 							next_callback(null, {});
 							return;
 						}
@@ -274,7 +274,7 @@ exports.searchMovie = function(options, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'searchMovie redis error: ' + options);
 			callback({});
 			return;
 		}
@@ -290,7 +290,7 @@ exports.searchMovie = function(options, callback){
 
 				// Log errors
 				if(err){
-					log.error(err);
+					log.error(err, 'searchMovie: ' + options);
 					callback([]);
 					return;
 				}
@@ -349,7 +349,7 @@ exports.getMovieEta = function(id, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'getMovieETA redis error: ' + id);
 			callback({});
 			return;
 		}
@@ -365,7 +365,7 @@ exports.getMovieEta = function(id, callback){
 
 				// Log errors
 				if(err){
-					log.error(err);
+					log.error(err, 'getMovieETA: ' + id);
 					callback({});
 					return;
 				}
