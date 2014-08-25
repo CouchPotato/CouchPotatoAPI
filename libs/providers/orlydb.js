@@ -1,6 +1,4 @@
 var cheerio = require('cheerio'),
-	redis = require('redis'),
-	rclient = redis.createClient(),
 	log = global.createLogger(__filename),
 	scoring = {
 
@@ -17,7 +15,7 @@ var cheerio = require('cheerio'),
 exports.validate = function(name, callback){
 
 	api.request({
-		'timeout': 3000,
+		'timeout': 6000,
 		'url': 'http://orlydb.com/?q="' + name.replace(/[\.-]/g, '+') + '"'
 	}, function(err, response, body){
 

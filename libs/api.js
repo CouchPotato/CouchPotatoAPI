@@ -116,7 +116,7 @@ exports.isValid = function(name, callback){
 				});
 
 				// Cache
-				rclient.setex(hash, 86400, JSON.stringify(is_valid));
+				rclient.setex(hash, 259200, JSON.stringify(is_valid));
 
 				// Send back
 				callback(is_valid);
