@@ -15,7 +15,7 @@ exports.eta = function(imdb, callback){
 	var now = Math.round(new Date().getTime() / 1000);
 
 	api.request({
-		'timeout': settings.timout || 3000,
+		'timeout': settings.timeout || 3000,
 		'url': url + 'movie_alias.json?type=imdb&id=' + imdb.replace('tt', '') + '&apikey=' + settings.apikey
 	}, function(err, response, body){
 
@@ -29,7 +29,7 @@ exports.eta = function(imdb, callback){
 		try {
 			var rotten = JSON.parse(trim(body)),
 				dates = rotten.release_dates;
-	
+
 			callback(null, dates ? {
 				'dvd': dates.dvd ? strtotime(dates.dvd) : 0,
 				'theater': dates.theater ? strtotime(dates.theater) : 0,

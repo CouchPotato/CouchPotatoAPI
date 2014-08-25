@@ -11,7 +11,7 @@ exports.info = function(imdb, callback){
 	}
 
 	api.request({
-		'timeout': settings.timout || 3000,
+		'timeout': settings.timeout || 3000,
 		'url': settings.proxy_url + encodeURIComponent(settings.info_url + imdb),
 		'json': true
 	}, function(err, response, movie) {
@@ -59,7 +59,7 @@ exports.eta = function(imdb, callback){
 	}
 
 	api.request({
-		'timeout': settings.timout || 3000,
+		'timeout': settings.timeout || 3000,
 		'url': settings.eta_url + imdb + '/releaseinfo'
 	}, function(err, response, body) {
 
@@ -95,7 +95,7 @@ exports.eta = function(imdb, callback){
 exports.ismovie = function(imdb, callback){
 
 	api.request({
-		'timeout': settings.timout || 3000,
+		'timeout': settings.timeout || 3000,
 		'url': settings.ismovie_url + imdb + '/'
 	}, function(err, response, body) {
 
