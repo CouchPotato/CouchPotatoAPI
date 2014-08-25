@@ -26,7 +26,7 @@ exports.info = function(id, callback){
 		// Log errors
 		if(!r || err){
 			if(!(err + '').indexOf('not found'))
-				log.error(err);
+				log.error(err, 'info: ' + id);
 			callback(null, {});
 			return;
 		}
@@ -183,7 +183,7 @@ exports.search = function(options, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'searchMovie: ' + options.query);
 			callback(null, []);
 			return;
 		}
@@ -246,7 +246,7 @@ exports.toIMDB = function(id, callback){
 				// Log errors
 				if(!r || err){
 					if(!(err + '').indexOf('not found'))
-						log.error(err);
+						log.error(err, 'toIMDB: ' + id);
 					callback(null);
 					return;
 				}
