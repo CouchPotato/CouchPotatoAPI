@@ -62,7 +62,8 @@ app.use(express.static(__dirname + '/public'));
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.use(compress());
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({'extended': true}))
+app.use(bodyParser.json({'limit': '50mb'}));
 
 // Use proper IP
 app.enable('trust proxy');
