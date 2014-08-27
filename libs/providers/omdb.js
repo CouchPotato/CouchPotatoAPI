@@ -52,7 +52,7 @@ exports.info = function(imdb, callback){
 			'original_title': movie.Title,
 			'year': movie.Year ? parseInt(movie.Year) : null,
 			'images': {
-				'poster': (movie.Poster && movie.Poster.length > 4) ? [movie.Poster] : [],
+				'poster': (movie.Poster && movie.Poster.length > 4) ? [movie.Poster] : []
 			},
 			'rating': {},
 			'plot': movie.Plot,
@@ -61,7 +61,7 @@ exports.info = function(imdb, callback){
 			'genres': cleanupList(movie.Genre),
 			'directors': cleanupList(movie.Director),
 			'writers': cleanupList(movie.Writer),
-			'actors': cleanupList(movie.Actors),
+			'actors': cleanupList(movie.Actors)
 		}
 
 		var runtime, rating;
