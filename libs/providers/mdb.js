@@ -6,7 +6,7 @@ exports.info = function(imdb, callback){
 
 	// Only except imdb ids
 	if((imdb + '').substring(0, 2) != 'tt'){
-		callback();
+		callback(null, {});
 		return;
 	}
 
@@ -18,6 +18,7 @@ exports.info = function(imdb, callback){
 
 		// Log errors
 		if(err || !movie.data){
+			log.error(err, 'mdb info: ' + imdb);
 			callback(null, {});
 			return;
 		}
@@ -30,14 +31,14 @@ exports.info = function(imdb, callback){
 			'original_title': movie.title,
 			'year': movie.year ? parseInt(movie.year) : null,
 			'images': {
-				'poster': (movie.image && movie.image.url) ? [movie.image.url] : [],
+				'poster': (movie.image && movie.image.url) ? [movie.image.url] : []
 			},
 			'rating': {},
 			'runtime': movie.runtime ? movie.runtime.time / 60 : null,
 			'plot': movie.plot && movie.plot.outline ? movie.plot.outline : null,
 			'imdb': movie.imdbID,
 			'mpaa': movie.certificate ? movie.certificate.certificate : null,
-			'genres': movie.genres,
+			'genres': movie.genres
 		}
 
 		if(movie.rating && movie.num_votes)
@@ -54,7 +55,7 @@ exports.eta = function(imdb, callback){
 
 	// Only except imdb ids
 	if((imdb + '').substring(0, 2) != 'tt'){
-		callback();
+		callback(null, {});
 		return;
 	}
 
@@ -65,15 +66,12 @@ exports.eta = function(imdb, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'mdb eta: ' + imdb);
 			callback(null, {});
 			return;
 		}
 
 		var $ = cheerio.load(body);
-
-		// Find the title
-		var title = $('title').text().split('-')[0];
 
 		// Get all the dates and parse them
 		var imdb_time = null;
@@ -101,7 +99,7 @@ exports.ismovie = function(imdb, callback){
 
 		// Log errors
 		if(err){
-			log.error(err);
+			log.error(err, 'mdb ismovie: ' + imdb);
 			callback(null, true);
 			return;
 		}
