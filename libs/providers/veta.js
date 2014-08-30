@@ -96,7 +96,7 @@ exports.eta = function(imdb, callback){
 						get_details(detail_url);
 
 						// Cache
-						rclient.set(veta_hash, detail_url);
+						rclient.setex(veta_hash, 1209600, detail_url);
 					}
 					else {
 						callback();
