@@ -1,5 +1,7 @@
 var cheerio = require('cheerio'),
 	settings = global.settings.mdb,
+	redis = require('redis'),
+	rclient = redis.createClient(),
 	log = global.createLogger(__filename);
 
 exports.info = function(imdb, callback){
@@ -10,42 +12,67 @@ exports.info = function(imdb, callback){
 		return;
 	}
 
-	api.request({
-		'timeout': settings.timeout || 3000,
-		'url': settings.proxy_url + encodeURIComponent(settings.info_url + imdb),
-		'json': true
-	}, function(err, response, movie) {
+	var hash_404 = 'mdb:'+imdb;
+
+	rclient.get(hash_404, function(err, result){
 
 		// Log errors
-		if(err || !movie.data){
-			log.error(err, 'mdb info: ' + imdb);
+		if(err){
+			log.error(err, 'hash_404 redis: ' + imdb);
+		}
+
+		// Don't check site when 404 hash is set
+		if(result){
 			callback(null, {});
-			return;
 		}
+		else {
 
-		var movie = movie.data;
+			api.request({
+				'timeout': settings.timeout || 3000,
+				'url': settings.proxy_url + encodeURIComponent(settings.info_url + imdb),
+				'json': true
+			}, function(err, response, movie) {
 
-		var movie_data = {
-			'via_imdb': true,
-			'titles': movie.title ? [movie.title] : [],
-			'original_title': movie.title,
-			'year': movie.year ? parseInt(movie.year) : null,
-			'images': {
-				'poster': (movie.image && movie.image.url) ? [movie.image.url] : []
-			},
-			'rating': {},
-			'runtime': movie.runtime ? movie.runtime.time / 60 : null,
-			'plot': movie.plot && movie.plot.outline ? movie.plot.outline : null,
-			'imdb': movie.imdbID,
-			'mpaa': movie.certificate ? movie.certificate.certificate : null,
-			'genres': movie.genres
+				// Log errors
+				if(err || !movie.data){
+					if(response && response.statusCode == 404){
+						log.error('Not found for: ' + imdb + ' ignoring for 7 days');
+						rclient.setex(hash_404, 604800, 1);
+					}
+					else {
+						log.error(err, 'mdb info: ' + imdb);
+					}
+					callback(null, {});
+					return;
+				}
+
+				var movie = movie.data;
+
+				var movie_data = {
+					'via_imdb': true,
+					'titles': movie.title ? [movie.title] : [],
+					'original_title': movie.title,
+					'year': movie.year ? parseInt(movie.year) : null,
+					'images': {
+						'poster': (movie.image && movie.image.url) ? [movie.image.url] : []
+					},
+					'rating': {},
+					'runtime': movie.runtime ? movie.runtime.time / 60 : null,
+					'plot': movie.plot && movie.plot.outline ? movie.plot.outline : null,
+					'imdb': movie.imdbID,
+					'mpaa': movie.certificate ? movie.certificate.certificate : null,
+					'genres': movie.genres
+				}
+
+				if(movie.rating && movie.num_votes)
+					movie_data['rating']['imdb'] = {0:movie.rating, 1:movie.num_votes}
+
+				// Return
+				callback(null, movie_data);
+
+			});
+
 		}
-
-		if(movie.rating && movie.num_votes)
-			movie_data['rating']['imdb'] = {0:movie.rating, 1:movie.num_votes}
-
-		// Return
-		callback(null, movie_data);
 
 	});
 
