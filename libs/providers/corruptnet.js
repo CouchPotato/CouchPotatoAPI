@@ -16,7 +16,7 @@ exports.validate = function(name, callback){
 
 	api.request({
 		'timeout': 6000,
-		'url': 'https://pre.corrupt-net.org/search.php?search=' + name + ''
+		'url': 'https://pre.corrupt-net.org/search.php?search=' + name.replace(/[\s]/g, '.') + ''
 	}, function(err, response, body){
 
 		if(err){
