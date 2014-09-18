@@ -1,4 +1,4 @@
-var providers = ['omdb', 'mdb', 'tmdb', 'rotten', 'mi', 'veta', 'orlydb'],
+var providers = ['omdb', 'mdb', 'tmdb', 'rotten', 'mi', 'veta', 'corruptnet'],
 	apis_calls = ['eta', 'info', 'search', 'ismovie', 'validate'],
 	apis = {};
 
