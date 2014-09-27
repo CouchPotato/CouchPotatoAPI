@@ -105,7 +105,7 @@ app.get('*', function(req, res){
 
 // Log errors resulting in 500
 app.use(function(err, req, res, next){
-	winston.error(req.url + ': ' + err.stack);
+	log.error(req.url + ': ' + err.stack);
 	res.status(500).send('Something isn\'t right.. abort abort!');
 });
 
@@ -118,24 +118,24 @@ var graceful = function() {
 	shutting_down = true;
 
 	httpServer.close(function() {
-		winston.info('Closed out remaining connections.');
+		log.info('Closed out remaining connections.');
 		return process.exit();
 	});
 
 	return setTimeout(function() {
-		winston.error('Could not close connections in time, forcefully shutting down');
+		log.error('Could not close connections in time, forcefully shutting down');
 		return process.exit(1);
 	}, 30 * 1000);
 }
 
 // Graceful shutdown
 process.on('SIGTERM', function(){
-	winston.info('Received kill signal (SIGTERM), shutting down gracefully.');
+	log.info('Received kill signal (SIGTERM), shutting down gracefully.');
 	graceful();
 });
 
 // Try to log exceptions
 process.on('uncaughtException', function (err) {
-	winston.error(err.stack);
+	log.error(err.stack);
 	graceful();
 })
