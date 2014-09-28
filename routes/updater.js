@@ -5,7 +5,8 @@ var fs = require('fs');
  */
 var correct_reg = /^([a-z]+)$/i;
 var isAlphabetOnly = function(str){
-    return str.match(correct_reg);
+	try { return str.match(correct_reg); }
+	catch(e) { return false; }
 }
 
 exports.url = function(req, res) {
