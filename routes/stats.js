@@ -48,6 +48,7 @@ exports.show = function(req, res) {
 
 	// Do user stats
 	var user_stats = [
+		{'name':'Current', 'range': [now-60, '+inf']},
 		{'name':'Last hour', 'range': [now-3600, '+inf']},
 		{'name':'Today', 'range': [now-86400, '+inf']},
 		{'name':'Last week', 'range': [now-604800, '+inf']},
