@@ -132,7 +132,7 @@ exports.show = function(req, res) {
 			allowed_platforms.forEach(function (platform) {
 				platform_data.dataPoints.push({
 					'y': parseInt(os_data[platform][type]),
-					'label': type
+					'label': platform
 				});
 			});
 
