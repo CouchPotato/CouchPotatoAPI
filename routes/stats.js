@@ -70,10 +70,11 @@ exports.show = function(req, res) {
 
 	stat_multi.exec(function(err, results){
 		results.forEach(function(r, nr){
+			var val = parseInt(r);
 			user_results.push({
 				'label': user_stats[nr].name,
 				'y': parseInt(r),
-				'indexLabel': parseInt(parseInt(r)/1000) + 'k'
+				'indexLabel': val > 10000 ? parseInt(val/1000) + 'k' : val + ''
 			});
 		});
 		send_results();
