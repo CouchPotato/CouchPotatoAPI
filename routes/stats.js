@@ -68,7 +68,7 @@ exports.show = function(req, res) {
 			user_results.push({
 				'label': user_stats[nr].name,
 				'y': parseInt(r),
-				'indexLabel': parseInt(r)
+				'indexLabel': parseInt(r) + ''
 			});
 		});
 		send_results();
@@ -101,7 +101,7 @@ exports.show = function(req, res) {
 			request_results.push({
 				'label': day,
 				'y': parseInt(r),
-				'indexLabel': parseInt(r)
+				'indexLabel': parseInt(r) + ''
 			});
 		});
 		send_results();
