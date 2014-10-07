@@ -44,23 +44,17 @@ exports.stats = function(req, res, next) {
 		'hits-by-by-month:' + month,
 	];
 
-	// Add keys in one go
-	var multi = rclient.multi();
-
 	// Increment all keys
 	for(i in keys) {
-		multi.incr(keys[i]);
+		rclient.incr(keys[i]);
 	}
 
 	// Set last request time for each user
-	multi.zadd('user-last-request', now, user);
+	rclient.zadd('user-last-request', now, user);
 
 	// Keep track of movies per user
 	var imdb_id = req.url.match(/tt\d{7}/g);
 	if(imdb_id && imdb_id.length == 1)
-		multi.zadd('usermovies:' + user, now, imdb_id[0]);
-
-	// Run all commands
-	multi.exec();
+		rclient.zadd('usermovies:' + user, now, imdb_id[0]);
 
 }
