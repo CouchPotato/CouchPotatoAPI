@@ -33,7 +33,7 @@
 								total = 0;
 
 							for (var i = 0; i < e.entries.length; i++) {
-								str += '<div style="color:' + e.entries[i].dataSeries.color + '> ' + e.entries[i].dataSeries.legendText + '</span>: <strong>' + e.entries[i].dataPoint.y + '</strong><br/>';
+								str += '<div style="color:' + e.entries[i].dataSeries.color + '"> ' + e.entries[i].dataSeries.legendText + '</span>: <strong>' + e.entries[i].dataPoint.y + '</strong><br/>';
 								total = e.entries[i].dataPoint.y + total;
 							}
 							str += '<span style="color:Tomato">Total:</span><strong> ' + total + '</strong><br/>';
