@@ -2,9 +2,8 @@ var crypto = require('crypto'),
 	redis = require('redis'),
 	rclient = redis.createClient();
 
-var md5 = function(string){
-	return crypto.createHash('md5').update(string).digest('hex')
-}
+var allowed_platforms = ['windows', 'osx', 'linux'],
+	allowed_types = ['git', 'source', 'desktop'];
 
 exports.stats = function(req, res, next) {
 
@@ -38,6 +37,12 @@ exports.stats = function(req, res, next) {
 		month = date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1),
 		day = month + '-' + date.getUTCDate(),
 		now = Math.round(date.getTime() / 1000);
+
+	// OS/type stat counter
+	if(req.stats && allowed_platforms.indexOf(req.stats.os) > -1 && allowed_types.indexOf(req.stats.type) > -1)
+		rclient.zadd('stat-version-'+req.stats.os+'-'+req.stats.type, now, user);
+	else
+		rclient.zadd('stat-version-unknown', now, user)
 
 	// Increment hits
 	rclient.incr('hits-by-day:' + day);
