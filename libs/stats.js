@@ -39,15 +39,9 @@ exports.stats = function(req, res, next) {
 		day = month + '-' + date.getUTCDate(),
 		now = Math.round(date.getTime() / 1000);
 
-	var keys = [
-		'hits-by-day:' + day,
-		'hits-by-by-month:' + month,
-	];
-
-	// Increment all keys
-	for(i in keys) {
-		rclient.incr(keys[i]);
-	}
+	// Increment hits
+	rclient.incr('hits-by-day:' + day);
+	rclient.incr('hits-by-by-month:' + month);
 
 	// Set last request time for each user
 	rclient.zadd('user-last-request', now, user);
