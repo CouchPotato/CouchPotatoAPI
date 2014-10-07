@@ -43,7 +43,11 @@ exports.stats = function(req, res, next) {
 	if(req.stats && allowed_platforms.indexOf(req.stats.os) > -1 && allowed_types.indexOf(req.stats.type) > -1)
 		rclient.zadd('stat-version-'+req.stats.os+'-'+req.stats.type, now, user);
 	else {
-		log.error('Unknown os stats', req.stats);
+		log.error('Unknown os stats', {
+			'version': version,
+			'user': user,
+			'stats': req.stats
+		});
 		rclient.zadd('stat-version-unknown', now, user);
 	}
 
