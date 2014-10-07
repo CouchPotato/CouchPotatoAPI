@@ -18,7 +18,8 @@ exports.show = function(req, res) {
 
 	var user_results = [],
 		request_results = [],
-		done = 2;
+		os_results = [],
+		done = 3;
 
 	var send_results = function(){
 		done--;
@@ -40,6 +41,10 @@ exports.show = function(req, res) {
 				// Do requests
 				request_results.reverse()
 				html = html.replace('{{request_data}}', JSON.stringify(request_results));
+
+				// Do OS
+				os_results.reverse()
+				html = html.replace('{{os_data}}', JSON.stringify(os_results));
 
 				res.send(html);
 			});
@@ -105,6 +110,50 @@ exports.show = function(req, res) {
 			});
 		});
 		send_results();
+	});
+
+	// Version stats
+	var allowed_platforms = ['windows', 'osx', 'linux'],
+		allowed_types = ['git', 'source', 'desktop'],
+		total_gets = allowed_platforms.length * allowed_types.length,
+		os_data = {},
+		done_gets = 0;
+
+	var os_results_build = function(){
+
+		allowed_types.forEach(function(type, nr) {
+			var platform_data = {
+				'type': 'stackedColumn',
+				'legendText': type,
+				'showInLegend': true,
+				'dataPoints': []
+			};
+
+			allowed_platforms.forEach(function (platform) {
+				platform_data.dataPoints.push({
+					'y': parseInt(os_data[platform][type]),
+					'label': type
+				});
+			});
+
+			os_results.push(platform_data);
+		});
+
+		send_results();
+	};
+
+	allowed_platforms.forEach(function(platform){
+		os_data[platform] = {};
+		allowed_types.forEach(function(type){
+			os_data[platform][type] = 0;
+			rclient.zcount('stat-version-' + platform + '-' + type, '-inf', '+inf', function(err, results){
+				os_data[platform][type] = parseInt(results);
+				done_gets++;
+
+				if(total_gets == done_gets)
+					os_results_build();
+			})
+		});
 	});
 
 };

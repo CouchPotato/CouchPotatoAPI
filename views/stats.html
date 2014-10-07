@@ -23,11 +23,18 @@
 					}]
 				});
 				request_chart.render();
+
+				var os_chart = new CanvasJS.Chart('os_chart', {
+					axisY:{ minimum: 0, title: 'OS/type stats' },
+					data: {{os_data}}
+				});
+				os_chart.render();
 			}
 		</script>
 	</head>
 	<body>
 		<div id="user_chart" style="height: 300px; width: 100%;"></div>
 		<div id="request_chart" style="height: 300px; width: 100%;"></div>
+		<div id="os_chart" style="height: 300px; width: 100%;"></div>
 	</body>
 </html>
