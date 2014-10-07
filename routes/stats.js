@@ -65,7 +65,11 @@ exports.show = function(req, res) {
 
 	stat_multi.exec(function(err, results){
 		results.forEach(function(r, nr){
-			user_results.push({'label': user_stats[nr].name, 'y': parseInt(r)});
+			user_results.push({
+				'label': user_stats[nr].name,
+				'y': parseInt(r),
+				'indexLabel': parseInt(r)
+			});
 		});
 		send_results();
 	});
@@ -94,7 +98,11 @@ exports.show = function(req, res) {
 				d.setDate(d.getDate() - nr);
 			var day = d.getUTCFullYear() + '-' + (d.getUTCMonth() + 1) + '-' + d.getUTCDate();
 
-			request_results.push({'label': day, 'y': parseInt(r)});
+			request_results.push({
+				'label': day,
+				'y': parseInt(r),
+				'indexLabel': parseInt(r)
+			});
 		});
 		send_results();
 	});
