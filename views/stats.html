@@ -29,15 +29,14 @@
 					toolTip: {
 						shared: true,
 						content: function (e) {
-							var str = '';
-							var total = 0;
-							var str3;
+							var str = '',
+								total = 0;
+
 							for (var i = 0; i < e.entries.length; i++) {
-								str += "<div style= 'color:" + e.entries[i].dataSeries.color + "'> " + e.entries[i].dataSeries.legendText + "</span>: <strong>" + e.entries[i].dataPoint.y + "</strong><br/>";
+								str += '<div style="color:' + e.entries[i].dataSeries.color + '> ' + e.entries[i].dataSeries.legendText + '</span>: <strong>' + e.entries[i].dataPoint.y + '</strong><br/>';
 								total = e.entries[i].dataPoint.y + total;
 							}
-							total = Math.round(total * 100) / 100
-							str += "<span style = 'color:Tomato '>Total:</span><strong> " + total + "</strong><br/>";
+							str += '<span style="color:Tomato">Total:</span><strong> ' + total + '</strong><br/>';
 
 							return str;
 						}
