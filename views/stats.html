@@ -26,6 +26,22 @@
 
 				var os_chart = new CanvasJS.Chart('os_chart', {
 					axisY:{ minimum: 0, title: 'OS/type stats' },
+					toolTip: {
+						shared: true,
+						content: function (e) {
+							var str = '';
+							var total = 0;
+							var str3;
+							for (var i = 0; i < e.entries.length; i++) {
+								str += "<div style= 'color:" + e.entries[i].dataSeries.color + "'> " + e.entries[i].dataSeries.legendText + "</span>: <strong>" + e.entries[i].dataPoint.y + "</strong><br/>";
+								total = e.entries[i].dataPoint.y + total;
+							}
+							total = Math.round(total * 100) / 100
+							str += "<span style = 'color:Tomato '>Total:</span><strong> " + total + "</strong><br/>";
+
+							return str;
+						}
+					},
 					data: {{os_data}}
 				});
 				os_chart.render();

@@ -73,7 +73,7 @@ exports.show = function(req, res) {
 			user_results.push({
 				'label': user_stats[nr].name,
 				'y': parseInt(r),
-				'indexLabel': (parseInt(r)/1000) + 'k'
+				'indexLabel': parseInt(parseInt(r)/1000) + 'k'
 			});
 		});
 		send_results();
