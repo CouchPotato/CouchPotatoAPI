@@ -1,6 +1,7 @@
 var crypto = require('crypto'),
 	redis = require('redis'),
-	rclient = redis.createClient();
+	rclient = redis.createClient(),
+	log = global.createLogger(__filename);
 
 var allowed_platforms = ['windows', 'osx', 'linux'],
 	allowed_types = ['git', 'source', 'desktop'];
@@ -41,8 +42,10 @@ exports.stats = function(req, res, next) {
 	// OS/type stat counter
 	if(req.stats && allowed_platforms.indexOf(req.stats.os) > -1 && allowed_types.indexOf(req.stats.type) > -1)
 		rclient.zadd('stat-version-'+req.stats.os+'-'+req.stats.type, now, user);
-	else
-		rclient.zadd('stat-version-unknown', now, user)
+	else {
+		log.error('Unknown os stats', req.stats);
+		rclient.zadd('stat-version-unknown', now, user);
+	}
 
 	// Increment hits
 	rclient.incr('hits-by-day:' + day);
