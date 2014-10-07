@@ -115,8 +115,12 @@ exports.show = function(req, res) {
 	// Version stats
 	var allowed_platforms = ['windows', 'osx', 'linux'],
 		allowed_types = ['git', 'source', 'desktop'],
-		total_gets = allowed_platforms.length * allowed_types.length,
-		os_data = {},
+		total_gets = 1 + (allowed_platforms.length * allowed_types.length),
+		os_data = {
+			'unknown': {
+				'unknown': 0
+			}
+		},
 		done_gets = 0;
 
 	var os_results_build = function(){
@@ -126,12 +130,15 @@ exports.show = function(req, res) {
 				'type': 'stackedColumn',
 				'legendText': type,
 				'showInLegend': true,
-				'dataPoints': []
+				'dataPoints': [{
+					'y': nr == 0 ? os_data['unknown']['unknown'] : 0,
+					'label': 'unknown'
+				}]
 			};
 
 			allowed_platforms.forEach(function (platform) {
 				platform_data.dataPoints.push({
-					'y': parseInt(os_data[platform][type]),
+					'y': os_data[platform][type],
 					'label': platform
 				});
 			});
@@ -152,8 +159,17 @@ exports.show = function(req, res) {
 
 				if(total_gets == done_gets)
 					os_results_build();
-			})
+			});
 		});
+	});
+
+	// Get unknown stat count
+	rclient.zcount('stat-version-unknown', '-inf', '+inf', function(err, results){
+		os_data['unknown']['unknown'] = parseInt(results);
+		done_gets++;
+
+		if(total_gets == done_gets)
+			os_results_build();
 	});
 
 };
