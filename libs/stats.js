@@ -14,7 +14,9 @@ exports.stats = function(req, res, next) {
 		user = (req.header('x-cp-identifier') || '').substr(0, 11),
 		split = version.split('-');
 
-    req.api_version = req.header('x-cp-api') || 0;
+	req.version = version;
+	req.user = user;
+	req.api_version = req.header('x-cp-api') || 0;
     req.identifier = req.header('x-cp-identifier') || null;
 
     // No user set, don't log (probably updater calls)
