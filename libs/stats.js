@@ -44,7 +44,9 @@ exports.stats = function(req, res, next) {
 		rclient.zadd('stat-version-'+req.stats.os+'-'+req.stats.type, now, user);
 	else {
 		log.error('Unknown os stats', {
+			'url': req.originalUrl,
 			'version': version,
+			'api_version': req.api_version,
 			'user': user,
 			'stats': req.stats
 		});
