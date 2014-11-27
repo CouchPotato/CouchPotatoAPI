@@ -27,6 +27,7 @@ var express = require('express'),
 	updater = require('./routes/updater'),
 	messages = require('./routes/messages'),
 	rstats = require('./routes/stats'),
+	manage = require('./routes/manage'),
 
 	// Stats & restriction
 	stats = require('./libs/stats').stats,
@@ -99,6 +100,7 @@ app.get('/messages/', stats, messages.list);
 app.get('/updater/', stats, updater.url);
 app.get('/updates/*', stats, updater.builds);
 app.get('/stats/', rstats.show);
+app.get('/manage/cleanup', restrict, manage.cleanup);
 app.get('*', function(req, res){
 	res.status(404).send('Not found');
 });
