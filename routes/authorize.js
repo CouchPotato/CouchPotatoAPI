@@ -1,24 +1,17 @@
-var redis = require('redis'),
+var putio = global.settings.putio,
+	redis = require('redis'),
 	rclient = redis.createClient(),
 	log = global.createLogger(__filename);
 
 /**
  * Put IO connection
  */
-
-	var client_id = 0,
-		secret = '',
-		redirect_url = encodeURI('http://localhost:3000/authorize/putio/');
-
-// https://YOUR_REGISTERED_REDIRECT_URI/?code=CODE
-var test = '';
-
 exports.putio = function(req, res) {
 
 	var url = 'https://api.put.io/v2/oauth2/authenticate' +
-		'?client_id=' + client_id +
+		'?client_id=' + putio.client_id +
 		'&response_type=code' +
-		'&redirect_uri=' + redirect_url;
+		'&redirect_uri=' + putio.redirect_url;
 
 	var store_key = 'putio_authorize:' + req.ip;
 
@@ -32,10 +25,10 @@ exports.putio = function(req, res) {
 	else if(req.query.code){
 
 		var url2 = 'https://api.put.io/v2/oauth2/access_token' +
-			'?client_id=' + client_id +
-			'&client_secret=' + secret +
+			'?client_id=' + putio.client_id +
+			'&client_secret=' + putio.secret +
 			'&grant_type=authorization_code' +
-			'&redirect_uri=' + redirect_url +
+			'&redirect_uri=' + putio.redirect_url +
 			'&code=' + req.query.code;
 
 		api.request({

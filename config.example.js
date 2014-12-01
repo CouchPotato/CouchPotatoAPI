@@ -18,6 +18,11 @@ module.exports = {
 			'url': '',
 			'timeout': 10000
 		},
+		'putio': {
+			client_id: 0,
+			secret: '',
+			redirect_url: encodeURI('http://host.tld/authorize/putio/')
+		},
 		'veta': {
 			'url': '',
 			'timeout': 10000
