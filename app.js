@@ -11,10 +11,10 @@ global.api = require('./libs/api');
 
 // Import modules
 var express = require('express'),
-    compress = require('compression'),
-    bodyParser = require('body-parser'),
+	compress = require('compression'),
+	bodyParser = require('body-parser'),
 
-    redis = require('redis'),
+	redis = require('redis'),
 
 	// Routes
 	home = require('./routes'),
@@ -35,9 +35,10 @@ var express = require('express'),
 	restrict = require('./libs/restrict').restrict,
 
 	// HTTP server
-	http = require('http')
+	http = require('http'),
 
 	// Logging
+	path = require('path'),
 	winston = require('winston');
 
 var app = express(),
@@ -72,7 +73,8 @@ app.enable('trust proxy');
 
 // Development only
 if(app.get('env') != 'development') {
-	winston.add(winston.transports.File, { filename: './logs/main.log' });
+	console.log(path.resolve(__dirname, 'logs/main.log'));
+	winston.add(winston.transports.File, { filename: path.resolve(__dirname, 'logs/main.log') });
 	winston.remove(winston.transports.Console);
 }
 
