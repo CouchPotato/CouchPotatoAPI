@@ -38,7 +38,6 @@ var express = require('express'),
 	http = require('http'),
 
 	// Logging
-	path = require('path'),
 	winston = require('winston');
 
 var app = express(),
@@ -74,7 +73,7 @@ app.enable('trust proxy');
 // Development only
 if(app.get('env') != 'development') {
 	console.log(path.resolve(__dirname, 'logs/main.log'));
-	winston.add(winston.transports.File, { filename: path.resolve(__dirname, 'logs/main.log') });
+	winston.add(winston.transports.File, { filename: __dirname + '/logs/main.log'});
 	winston.remove(winston.transports.Console);
 }
 

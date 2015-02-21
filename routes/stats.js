@@ -1,4 +1,5 @@
 var fs = require('fs'),
+	path = require('path'),
 	redis = require('redis'),
 	rclient = redis.createClient(),
 	log = global.createLogger(__filename);
@@ -26,7 +27,7 @@ exports.show = function(req, res) {
 
 		if(done == 0){
 
-			fs.readFile('./views/stats.html', 'utf8', function(err, html){
+			fs.readFile(path.resolve(__dirname, '../views/stats.html'), 'utf8', function(err, html){
 
 				if(err){
 					log.error(err);
