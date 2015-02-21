@@ -72,7 +72,6 @@ app.enable('trust proxy');
 
 // Development only
 if(app.get('env') != 'development') {
-	console.log(path.resolve(__dirname, 'logs/main.log'));
 	winston.add(winston.transports.File, { filename: __dirname + '/logs/main.log'});
 	winston.remove(winston.transports.Console);
 }
