@@ -88,6 +88,10 @@ exports.isValid = function(name, callback){
 			'score': 0
 		};
 
+		// Temp
+		callback(is_valid);
+		return;
+
 		// Log errors
 		if(err){
 			log.error(err, 'isValid redis error: ' + name);
