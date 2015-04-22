@@ -1,4 +1,5 @@
-var fs = require('fs');
+var fs = require('fs'),
+	path = require('path');
 
 /**
  * Return the url source updater can find the zip
@@ -27,7 +28,7 @@ exports.url = function(req, res) {
 
 };
 
-var build_data = JSON.parse(fs.readFileSync('./data/builds.json').toString()),
+var build_data = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../data/builds.json')).toString()),
 	builds = '';
 
 build_data.versions.forEach(function(build){
