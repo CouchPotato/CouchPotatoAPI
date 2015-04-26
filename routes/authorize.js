@@ -70,15 +70,21 @@ exports.trakt = function(req, res) {
 	}
 	else if(req.query.code){
 
-		var url2 = 'https://api-v2launch.trakt.tv/oauth/token' +
-			'?client_id=' + trakt.client_id +
-			'&client_secret=' + trakt.secret +
-			'&grant_type=authorization_code' +
-			'&redirect_uri=' + trakt.redirect_url +
-			'&code=' + req.query.code;
+		var data = {
+			'client_id': trakt.client_id,
+			'client_secret': trakt.secret,
+			'grant_type': 'authorization_code',
+			'redirect_uri': trakt.redirect_url,
+			'code': req.query.code
+		};
 
 		api.request({
-			'url': url2,
+			'url': 'https://api-v2launch.trakt.tv/oauth/token',
+			'method': 'post',
+			'headers': {
+				'Content-Type': 'application/json'
+			},
+			'body': JSON.stringify(data),
 			'json': true
 		}, function(err, response, json) {
 

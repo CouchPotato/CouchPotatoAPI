@@ -20,7 +20,7 @@ exports.request = function(options, callback){
 	if(settings.ENV == 'development')
 		log.info('Opening url:' + (options instanceof Object ? options.url : options));
 
-	var req = request.get(merge({'headers': headers}, options)),
+	var req = request[options.method || 'get'](merge({'headers': headers}, options)),
 		callback_done = false;
 
 	var do_response = function(decoded){
