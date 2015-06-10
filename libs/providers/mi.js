@@ -18,7 +18,7 @@ exports.eta = function(imdb, callback){
 
 		api.request({
 			'timeout': settings.timeout || 3000,
-			'url': detail_url
+			'url': detail_url + 'm/releases/'
 		}, function(err, response, body){
 
 			// Log errors
@@ -31,20 +31,21 @@ exports.eta = function(imdb, callback){
 			var $ = cheerio.load(body),
 				dates = {};
 
-			$('#profileData tr th').each(function(nr, row){
+			$('.panel.panel-info').each(function(nr, row) {
 				var row = $(row),
-					it = row.text().toLowerCase();
+					it = $('.panel-title', row),
+					header_text = it.text().toLowerCase(),
+					bluray = header_text.indexOf('blu-ray') > -1;
 
-				$(['theater', 'dvd']).each(function(nr, key){
-					if(it.indexOf(key) > -1){
-						var a = $($('a', row.next())[0]),
-							str = a.attr('href') || a.attr('name'),
-							split = str.substr(0, str.length-1).split('/');
-							dates[key] = strtotime(split[split.length-1] + '-' + split[split.length-3] + '-' + split[split.length-2])
-					}
-				});
+				//p(row);
 
-				dates['bluray'] = (it.indexOf('blu-ray') > -1);
+				if (header_text.indexOf('theater') > -1) {
+					dates['theater'] = strtotime($('.pull-right', it).text());
+				}
+				else if (header_text.indexOf('dvd') > -1 || bluray) {
+					dates['dvd'] = strtotime($('.pull-right', it).text());
+					dates['bluray'] = bluray;
+				}
 
 			});
 
