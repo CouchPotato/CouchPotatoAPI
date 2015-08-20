@@ -1,30 +1,42 @@
 var settings = global.settings.moviedb,
 	redis = require('redis'),
 	rclient = redis.createClient(),
-	moviedb = require('moviedb')(settings.apikey),
 	async = require('async'),
+	querystring = require('querystring'),
 	log = global.createLogger(__filename);
 
 // TMDB image base url
 var config = null,
-	img_url = 'https://d3gtl9l2a4fn1j.cloudfront.net/t/p/';
+	img_url = 'https://image.tmdb.org/t/p/';
 
-moviedb.configuration(function(error, c){
-	config = c;
+var request = function(call, params, callback){
+	
+	params['api_key'] = settings.apikey;
+	api.request({
+		'url': 'https://api.themoviedb.org/3/'+call+'?'+querystring.stringify(params),
+		'json': true
+	}, callback);
 
-	try {
-		img_url = c.images.secure_base_url;
-	}
-	catch(e){};
-});
+};
+
+// Get image base
+setTimeout(function(){
+	request('configuration', {}, function(error, res, c){
+		config = c;
+
+		try {
+			img_url = c.images.secure_base_url;
+		}
+		catch(e){};
+	});
+}, 0);
 
 exports.info = function(id, callback){
 
 	// Go do a search
-	moviedb.movieInfo({
-		'id': id,
+	request('movie/' + id, {
 		'append_to_response': 'alternative_titles,casts'
-	}, function(err, r){
+	}, function(err, res, r){
 
 		// Log errors
 		if(!r || err){
@@ -103,7 +115,7 @@ exports.search = function(options, callback){
 		'search_type': 'ngram'
 	})
 
-	moviedb.searchMovie(options, function(err, rs){
+	request('search/movie', options, function(err, res, rs){
 
 		// Log errors
 		if(err){
@@ -165,7 +177,7 @@ exports.toIMDB = function(id, callback){
 		else {
 
 			// Go do a search
-			moviedb.movieInfo({'id': id}, function(err, r){
+			request('movie/'+ id, {}, function(err, res, r){
 
 				// Log errors
 				if(!r || err){
