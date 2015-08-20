@@ -50,7 +50,7 @@ exports.info = function(id, callback){
 
 		// Get genres
 		var genres = [];
-		r.genres.forEach(function(genre){
+		(r.genres || []).forEach(function(genre){
 			genres.push(genre.name);
 		});
 
@@ -73,7 +73,7 @@ exports.info = function(id, callback){
 			'imdb': r.imdb_id,
 			'genres': genres,
 			'actor_roles': {}
-		}
+		};
 
 		var titles = [r.title, r.original_title];
 		titles.forEach(function(title){
