@@ -10,11 +10,13 @@ var config = null,
 	img_url = 'https://image.tmdb.org/t/p/';
 
 var request = function(call, params, callback){
-	
+	var localAddress = settings.localAddress ? settings.localAddress[Math.floor(Math.random() * settings.localAddress.length)] : null;
+
 	params['api_key'] = settings.apikey;
 	api.request({
 		'url': 'https://api.themoviedb.org/3/'+call+'?'+querystring.stringify(params),
-		'json': true
+		'json': true,
+		'localAddress': localAddress
 	}, callback);
 
 };
