@@ -41,7 +41,7 @@ exports.info = function(id, callback){
 	}, function(err, res, r){
 
 		// Log errors
-		if(!r || err){
+		if(!r || err || !r.id){
 			if(!(err + '').indexOf('not found'))
 				log.error(err, 'info: ' + id);
 			callback(null, {});
@@ -61,7 +61,7 @@ exports.info = function(id, callback){
 			'tmdb_id': r.id,
 			'titles': [],
 			'original_title': r.original_title,
-			'year': parseInt(r.release_date.substr(0, 4)),
+			'year': parseInt((r.release_date || '').substr(0, 4)),
 			'images': {
 				'poster': r.poster_path ? [img_url + 'w154' + r.poster_path] : [],
 				'backdrop': r.backdrop_path ? [img_url + 'w1280' + r.backdrop_path] : [],
