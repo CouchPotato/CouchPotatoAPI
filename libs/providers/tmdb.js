@@ -50,9 +50,11 @@ exports.info = function(id, callback){
 
 		// Get genres
 		var genres = [];
-		(r.genres || []).forEach(function(genre){
-			genres.push(genre.name);
-		});
+		if(r.genres && r.genres.length > 0) {
+			r.genres.forEach(function (genre) {
+				genres.push(genre.name);
+			});
+		}
 
 		var movie_data = {
 			'via_tmdb': true,
