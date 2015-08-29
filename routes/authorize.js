@@ -90,11 +90,52 @@ exports.trakt = function(req, res) {
 
 			rclient.get(store_key, function(err, url){
 				if(url)
-					res.redirect(url + '?1=1&oauth=' + json.access_token);
+					res.redirect(url + '?1=1&oauth=' + json.access_token + '&refresh=' + json.refresh_token);
 				else
 					res.send('Please make sure to authorize trakt.tv within 5 minutes.');
 			});
 		});
 	}
+
+};
+
+
+/**
+ * Trakt connection
+ */
+exports.trakt_refresh = function(req, res) {
+
+	var url = 'https://api-v2launch.trakt.tv/oauth/token',
+		data = {
+			'refresh_token': req.query.token,
+			'client_id': trakt.client_id,
+			'client_secret': trakt.secret,
+			'grant_type': 'refresh_token',
+			'redirect_uri': trakt.redirect_url
+		};
+
+	api.request({
+		'url': url,
+		'method': 'post',
+		'headers': {
+			'Content-Type': 'application/json'
+		},
+		'body': JSON.stringify(data),
+		'json': true
+	}, function(err, response, json) {
+
+		if(err || !json || !json.access_token || !json.refresh_token){
+			res.send({
+				'success': false
+			});
+		}
+		else {
+			res.send({
+				'success': true,
+				'oauth': json.access_token,
+				'refresh': json.refresh_token
+			});
+		}
+	});
 
 };

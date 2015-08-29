@@ -100,6 +100,7 @@ app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, messages.list);
 app.get('/authorize/putio', stats, authorize.putio);
 app.get('/authorize/trakt', stats, authorize.trakt);
+app.get('/authorize/trakt_refresh', stats, authorize.trakt_refresh);
 app.get('/updater/', stats, updater.url);
 app.get('/updates/*', stats, updater.builds);
 app.get('/stats/', rstats.show);
