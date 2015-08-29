@@ -1,33 +1,47 @@
 var settings = global.settings.moviedb,
 	redis = require('redis'),
 	rclient = redis.createClient(),
-	moviedb = require('moviedb')(settings.apikey),
 	async = require('async'),
+	querystring = require('querystring'),
 	log = global.createLogger(__filename);
 
 // TMDB image base url
 var config = null,
-	img_url = 'https://d3gtl9l2a4fn1j.cloudfront.net/t/p/';
+	img_url = 'https://image.tmdb.org/t/p/';
 
-moviedb.configuration(function(error, c){
-	config = c;
+var request = function(call, params, callback){
+	var localAddress = settings.localAddress ? settings.localAddress[Math.floor(Math.random() * settings.localAddress.length)] : null;
 
-	try {
-		img_url = c.images.secure_base_url;
-	}
-	catch(e){};
-});
+	params['api_key'] = settings.apikey;
+	api.request({
+		'url': 'https://api.themoviedb.org/3/'+call+'?'+querystring.stringify(params),
+		'json': true,
+		'localAddress': localAddress
+	}, callback);
+
+};
+
+// Get image base
+setTimeout(function(){
+	request('configuration', {}, function(error, res, c){
+		config = c;
+
+		try {
+			img_url = c.images.secure_base_url;
+		}
+		catch(e){};
+	});
+}, 0);
 
 exports.info = function(id, callback){
 
 	// Go do a search
-	moviedb.movieInfo({
-		'id': id,
+	request('movie/' + id, {
 		'append_to_response': 'alternative_titles,casts'
-	}, function(err, r){
+	}, function(err, res, r){
 
 		// Log errors
-		if(!r || err){
+		if(!r || err || !r.id){
 			if(!(err + '').indexOf('not found'))
 				log.error(err, 'info: ' + id);
 			callback(null, {});
@@ -36,16 +50,18 @@ exports.info = function(id, callback){
 
 		// Get genres
 		var genres = [];
-		r.genres.forEach(function(genre){
-			genres.push(genre.name);
-		});
+		if(r.genres && r.genres.length > 0) {
+			r.genres.forEach(function (genre) {
+				genres.push(genre.name);
+			});
+		}
 
 		var movie_data = {
 			'via_tmdb': true,
 			'tmdb_id': r.id,
 			'titles': [],
 			'original_title': r.original_title,
-			'year': parseInt(r.release_date.substr(0, 4)),
+			'year': parseInt((r.release_date || '').substr(0, 4)),
 			'images': {
 				'poster': r.poster_path ? [img_url + 'w154' + r.poster_path] : [],
 				'backdrop': r.backdrop_path ? [img_url + 'w1280' + r.backdrop_path] : [],
@@ -59,7 +75,7 @@ exports.info = function(id, callback){
 			'imdb': r.imdb_id,
 			'genres': genres,
 			'actor_roles': {}
-		}
+		};
 
 		var titles = [r.title, r.original_title];
 		titles.forEach(function(title){
@@ -103,7 +119,7 @@ exports.search = function(options, callback){
 		'search_type': 'ngram'
 	})
 
-	moviedb.searchMovie(options, function(err, rs){
+	request('search/movie', options, function(err, res, rs){
 
 		// Log errors
 		if(err){
@@ -165,7 +181,7 @@ exports.toIMDB = function(id, callback){
 		else {
 
 			// Go do a search
-			moviedb.movieInfo({'id': id}, function(err, r){
+			request('movie/'+ id, {}, function(err, res, r){
 
 				// Log errors
 				if(!r || err){
