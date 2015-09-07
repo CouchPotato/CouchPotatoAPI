@@ -64,7 +64,7 @@ exports.stats = function(req, res, next) {
 
 	// Keep track of movies per user
 	var imdb_id = req.url.match(/tt\d{7}/g);
-	if(imdb_id && imdb_id.length == 1)
+	if(imdb_id && imdb_id.length == 1 && !req.query.ignore)
 		rclient.zadd('usermovies:' + user, now, imdb_id[0]);
 
 }
