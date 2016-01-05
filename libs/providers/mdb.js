@@ -65,7 +65,7 @@ exports.info = function(imdb, callback){
 				}
 
 				if(movie.rating && movie.num_votes)
-					movie_data['rating']['imdb'] = {0:movie.rating, 1:movie.num_votes}
+					movie_data['rating']['imdb'] = [movie.rating, parseInt(movie.num_votes)];
 
 				// Return
 				callback(null, movie_data);

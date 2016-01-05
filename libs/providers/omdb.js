@@ -67,7 +67,7 @@ exports.info = function(imdb, callback){
 		var runtime, rating;
 
 		if(rating = parseFloat(movie.imdbRating || 0))
-			movie_data['rating']['imdb'] = {0:rating, 1:parseInt((movie.imdbVotes || '0').replace(',', ''))}
+			movie_data['rating']['imdb'] = [rating, parseInt((movie.imdbVotes || '0').replace(',', ''))];
 
 		if(runtime = runtimeToMinutes(movie.Runtime))
 			movie_data['runtime'] = runtime;
