@@ -74,7 +74,10 @@ exports.eta = function(imdb, callback){
 
 				api.request({
 					'timeout': settings.timeout || 3000,
-					'url': search_url
+					'url': search_url,
+					'headers': {
+						'Referer': global.settings.mdb.proxy_url
+					}
 				}, function(err, response, body){
 
 					// Log errors
