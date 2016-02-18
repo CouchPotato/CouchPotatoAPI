@@ -21,7 +21,7 @@ exports.twitter = function(req, res) {
 
 		rclient.setex(store_key, 300, req.query.target, function(){
 
-			consumer.getoauth_request_token(function(error, oauth_request_token, oauth_token_secret){
+			consumer.getOAuthRequestToken(function(error, oauth_request_token, oauth_token_secret){
 				if (error) {
 					res.send(500, 'Error getting OAuth request token');
 				} else {
@@ -38,7 +38,7 @@ exports.twitter = function(req, res) {
 
 		rclient.get(store_key_secret, function(err, secret) {
 
-			consumer.getoauth_access_token(req.query.oauth_token, secret, req.query.oauth_verifier,
+			consumer.getOAuthAccessToken(req.query.oauth_token, secret, req.query.oauth_verifier,
 
 				function (error, oauth_access_token, oauth_access_token_secret, results) {
 					if (error) {
