@@ -98,6 +98,7 @@ app.get('/suggest/', restrict, suggest.imdbs);
 app.post('/suggest/', stats, restrict, suggest.imdbs);
 app.get('/suggest/cron', restrict, suggest.cron);
 app.get('/messages/', stats, messages.list);
+app.get('/authorize/twitter', stats, authorize.twitter);
 app.get('/authorize/putio', stats, authorize.putio);
 app.get('/authorize/trakt', stats, authorize.trakt);
 app.get('/authorize/trakt_refresh', stats, authorize.trakt_refresh);

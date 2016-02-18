@@ -18,6 +18,11 @@ module.exports = {
 			'url': '',
 			'timeout': 10000
 		},
+		'twitter': {
+			consumer_key: '',
+			consumer_secret: '',
+			redirect_url: encodeURI('http://host.tld/authorize/putio/')
+		},
 		'putio': {
 			client_id: 0,
 			secret: '',

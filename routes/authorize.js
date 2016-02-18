@@ -1,8 +1,67 @@
 var putio = global.settings.putio,
 	trakt = global.settings.trakt,
+	twitter = global.settings.twitter,
+	oauth = require('oauth'),
 	redis = require('redis'),
-	rclient = redis.createClient(),
-	log = global.createLogger(__filename);
+	rclient = redis.createClient();
+
+var consumer = new oauth.OAuth(
+	'https://twitter.com/oauth/request_token', 'https://twitter.com/oauth/access_token',
+	twitter.consumer_key, twitter.consumer_secret, '1.0A', twitter.redirect_url, 'HMAC-SHA1');
+
+/**
+ * Twitter connection
+ */
+exports.twitter = function(req, res) {
+
+	var store_key = 'twitter_authorize:' + req.ip,
+		store_key_secret = 'twitter_authorize_secret:' + req.ip;
+
+	if(req.query.target){
+
+		rclient.setex(store_key, 300, req.query.target, function(){
+
+			consumer.getoauth_request_token(function(error, oauth_request_token, oauth_token_secret){
+				if (error) {
+					res.send(500, 'Error getting OAuth request token');
+				} else {
+					rclient.setex(store_key_secret, 300, oauth_token_secret, function(){
+						res.redirect('https://twitter.com/oauth/authorize?oauth_token='+oauth_request_token);
+					});
+				}
+			});
+
+		});
+
+	}
+	else if(req.query.oauth_verifier){
+
+		rclient.get(store_key_secret, function(err, secret) {
+
+			consumer.getoauth_access_token(req.query.oauth_token, secret, req.query.oauth_verifier,
+
+				function (error, oauth_access_token, oauth_access_token_secret, results) {
+					if (error) {
+						res.send(500, 'Error getting OAuth access token');
+					} else {
+						rclient.get(store_key, function (err, url) {
+							if (url){
+								res.redirect(url + '?1=1&access_token_key=' + oauth_access_token +
+									'&access_token_secret=' + oauth_access_token_secret +
+									'&screen_name=' + results.screen_name);
+							}
+							else {
+								res.send('Please make sure to authorize twitter within 5 minutes.');
+							}
+						});
+					}
+				}
+			);
+		});
+
+	}
+
+};
 
 /**
  * Put IO connection
