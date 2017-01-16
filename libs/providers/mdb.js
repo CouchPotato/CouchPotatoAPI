@@ -30,7 +30,10 @@ exports.info = function(imdb, callback){
 			api.request({
 				'timeout': settings.timeout || 3000,
 				'url': settings.proxy_url + encodeURIComponent(settings.info_url + imdb),
-				'json': true
+				'json': true,
+                'headers': {
+                    'Referer': settings.proxy_url
+                }
 			}, function(err, response, movie) {
 
 				// Log errors
