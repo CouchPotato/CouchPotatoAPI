@@ -18,6 +18,10 @@ module.exports = {
 			'url': '',
 			'timeout': 10000
 		},
+		'omdb': {
+			'apikey': '',
+			'timeout': 10000
+		},
 		'twitter': {
 			consumer_key: '',
 			consumer_secret: '',

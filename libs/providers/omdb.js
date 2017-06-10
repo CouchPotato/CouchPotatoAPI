@@ -1,4 +1,4 @@
-var settings = global.settings.moviedb,
+var settings = global.settings.omdb,
 	log = global.createLogger(__filename);
 
 var cleanupList = function(list_string){
@@ -31,7 +31,7 @@ exports.info = function(imdb, callback){
 
 	api.request({
 		'timeout': settings.timeout || 3000,
-		'url': 'http://www.omdbapi.com/?i=' + imdb,
+		'url': 'http://www.omdbapi.com/?apikey=' + settings.apikey + '=' + imdb,
 		'json': true
 	}, function(err, response, movie) {
 
@@ -42,8 +42,10 @@ exports.info = function(imdb, callback){
 		}
 
 		for (var key in movie) {
-			if(movie[key].toLowerCase() == 'n/a')
-				delete movie[key];
+			try {
+				if(movie[key].toLowerCase() == 'n/a')
+					delete movie[key];
+			} catch(e){}
 		};
 
 		var movie_data = {
