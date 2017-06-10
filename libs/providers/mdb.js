@@ -105,7 +105,7 @@ exports.eta = function(imdb, callback){
 
 		// Get all the dates and parse them
 		var imdb_time = null;
-		$('#tn15content > table td[align=right]').each(function() {
+		$('#release_dates .release_date').each(function() {
 			var new_time = strtotime($(this).text());
 			if(!imdb_time || imdb_time > new_time)
 			 	imdb_time = new_time;
