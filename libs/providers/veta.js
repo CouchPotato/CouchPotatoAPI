@@ -70,13 +70,15 @@ exports.eta = function(imdb, callback){
 					return;
 				}
 
-				var search_url = global.settings.mdb.proxy_url + 'http://www.bing.com/search?q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29+site%3A'+encodeURIComponent(settings.url)+'%2Fmovie%2F';
+				var search_url = global.settings.mdb.proxy_url + encodeURIComponent('https://www.google.com/search?q="'+movie_info.original_title+'"+%28'+movie_info.year+'%29+site%3A'+encodeURIComponent(settings.url)+'%2Fmovie%2F');
 
 				api.request({
 					'timeout': settings.timeout || 3000,
 					'url': search_url,
 					'headers': {
-						'Referer': global.settings.mdb.proxy_url
+						'Referer': global.settings.mdb.proxy_url,
+						'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:53.0) Gecko/20100101 Firefox/53.0',
+						'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
 					}
 				}, function(err, response, body){
 
