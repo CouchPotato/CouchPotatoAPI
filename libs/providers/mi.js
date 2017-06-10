@@ -31,23 +31,35 @@ exports.eta = function(imdb, callback){
 			var $ = cheerio.load(body),
 				dates = {};
 
-			$('.panel.panel-info').each(function(nr, row) {
-				var row = $(row),
-					it = $('.panel-title', row),
-					header_text = it.text().toLowerCase(),
-					bluray = header_text.indexOf('blu-ray') > -1;
+			var current_type = null;
+			var bluray = false;
 
-				//p(row);
+			$('.profile-page > *').each(function(nr, row) {
+				var row = $(row);
 
-				if (header_text.indexOf('theater') > -1) {
-					dates['theater'] = strtotime($('.pull-right', it).text());
+				if(row.text().toLowerCase().indexOf('dvd') > -1){
+					current_type = 'dvd';
+					if(!bluray){
+						bluray = row.text().toLowerCase().indexOf('blu-ray');
+					}
 				}
-				else if (header_text.indexOf('dvd') > -1 || bluray) {
-					dates['dvd'] = strtotime($('.pull-right', it).text());
-					dates['bluray'] = bluray;
+				else if(row.text().toLowerCase().indexOf('theaters') > -1){
+					current_type = 'theater';
 				}
 
+				var match = (row + '').match(/dvds\/(\w+)\/(\d+)\/(\d+)/);
+				if(current_type && match){
+					var date = match[2] + '-' + match[1] + '-' + match[3];
+
+					if(date){
+						dates[current_type] = strtotime(date);
+					}
+				}
 			});
+
+			if(bluray){
+				dates['bluray'] = true;
+			}
 
 			callback(null, dates);
 
@@ -65,11 +77,16 @@ exports.eta = function(imdb, callback){
 
 			api.getMovieInfo(imdb, function(movie_info){
 
-				var search_url = 'http://www.google.com/cse?cx=partner-pub-9136844266644239%3A4586776767&sa=Search&num=1&nojs=1&q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29';
+				var search_url = 'https://www.google.com/search?q="'+encodeURIComponent(movie_info.original_title)+'"+%28'+movie_info.year+'%29+site%3Ahttps%3A%2F%2Fmovieinsider.com%2F';
 
 				api.request({
 					'timeout': settings.timeout || 3000,
-					'url': search_url
+					'url': search_url,
+					'headers': {
+						'Referer': global.settings.mdb.proxy_url,
+						'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:53.0) Gecko/20100101 Firefox/53.0',
+						'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+					}
 				}, function(err, response, body){
 
 					// Log errors
